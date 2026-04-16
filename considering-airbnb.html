@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エアコンマートアカデミー｜動画プラットフォーム・Airbnb・損益分岐点</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#F1EFE8;color:#1a1a1a;padding:1.5rem;min-height:100vh}
+.page{max-width:860px;margin:0 auto}
+.page-header{margin-bottom:1.75rem;padding-bottom:1rem;border-bottom:1px solid rgba(0,0,0,0.1)}
+.page-header h1{font-size:20px;font-weight:500;margin-bottom:4px}
+.page-header p{font-size:13px;color:#5F5E5A}
+.tab-row{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:7px 16px;font-size:13px;border:0.5px solid rgba(0,0,0,0.2);border-radius:8px;background:#fff;color:#5F5E5A;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab:hover{background:#F1EFE8}
+.tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.pane{display:none}.pane.active{display:block}
+.sec-header{margin-bottom:1.25rem}
+.sec-header h2{font-size:17px;font-weight:500;margin-bottom:5px}
+.sec-header p{font-size:13px;color:#5F5E5A;line-height:1.7}
+.card{background:#fff;border:0.5px solid rgba(0,0,0,0.12);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:.85rem}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:.65rem;flex-wrap:wrap}
+.card-title{font-size:15px;font-weight:500;color:#1a1a1a;line-height:1.4;flex:1}
+.badges{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.badge{font-size:11px;padding:3px 9px;border-radius:6px;white-space:nowrap;font-weight:500}
+.badge.rec{background:#1a1a1a;color:#fff}
+.badge.ok{background:#EAF3DE;color:#27500A}
+.badge.mid{background:#FAEEDA;color:#633806}
+.badge.warn{background:#FCEBEB;color:#791F1F}
+.badge.info{background:#E6F1FB;color:#0C447C}
+.card-body{font-size:13px;color:#5F5E5A;line-height:1.8;margin-bottom:.7rem}
+.hl{background:#F1EFE8;border-radius:8px;padding:10px 14px;font-size:13px;line-height:1.7;margin-bottom:.7rem}
+.hl strong{font-weight:500;color:#1a1a1a}
+.green-box{background:#EAF3DE;border-radius:8px;padding:10px 14px;font-size:13px;color:#27500A;line-height:1.7;margin-bottom:.7rem}
+.green-box strong{font-weight:500}
+.warn-box{background:#FCEBEB;border-radius:8px;padding:10px 14px;font-size:13px;color:#791F1F;line-height:1.7;margin-bottom:.7rem}
+.warn-box strong{font-weight:500}
+.divider{border:none;border-top:0.5px solid rgba(0,0,0,0.08);margin:.75rem 0}
+table.ct{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:.7rem}
+table.ct th{text-align:left;padding:7px 10px;background:#F1EFE8;font-weight:500;font-size:12px;color:#5F5E5A;border-bottom:0.5px solid rgba(0,0,0,0.1)}
+table.ct td{padding:7px 10px;border-bottom:0.5px solid rgba(0,0,0,0.07);color:#5F5E5A;vertical-align:top}
+table.ct td:first-child{color:#1a1a1a;font-weight:500}
+table.ct tr:last-child td{border-bottom:none}
+table.ct td.green{color:#3B6D11;font-weight:500}
+table.ct td.amber{color:#BA7517;font-weight:500}
+table.ct td.red{color:#A32D2D;font-weight:500}
+.step-flow{display:flex;flex-direction:column;gap:6px;margin-bottom:.7rem}
+.step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#5F5E5A;line-height:1.6}
+.snum{width:22px;height:22px;border-radius:50%;background:#1a1a1a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+.sarr{text-align:center;font-size:16px;color:rgba(0,0,0,0.2);padding-left:11px}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.7rem}
+@media(max-width:520px){.mini-grid{grid-template-columns:1fr}}
+.mc{background:#F1EFE8;border-radius:8px;padding:.75rem 1rem}
+.mc .ml{font-size:11px;color:#888780;margin-bottom:4px}
+.mc .mv{font-size:15px;font-weight:500;color:#1a1a1a}
+.mc .ms{font-size:12px;color:#5F5E5A;margin-top:3px;line-height:1.5}
+.mc.green-bg{background:#EAF3DE}
+.mc.green-bg .mv{color:#3B6D11}
+/* BEP */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-bottom:1.25rem}
+.mcard{background:#F1EFE8;border-radius:8px;padding:.85rem 1rem}
+.mcard .ml{font-size:12px;color:#5F5E5A;margin-bottom:4px}
+.mcard .mv{font-size:19px;font-weight:500;color:#1a1a1a}
+.mcard.blue .mv{color:#185FA5}
+.mcard.amber .mv{color:#BA7517}
+.mcard.red .mv{color:#A32D2D}
+.mcard.green .mv{color:#3B6D11}
+.sim-section{background:#fff;border:0.5px solid rgba(0,0,0,0.12);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.85rem}
+.st{font-size:12px;font-weight:500;color:#5F5E5A;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:0.5px solid rgba(0,0,0,0.1)}
+.srow{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.srow label{font-size:14px;color:#1a1a1a;flex:1;min-width:160px}
+.srow .hint{font-size:11px;color:#888780;display:block;margin-top:1px}
+input[type=number]{font-size:14px;text-align:right;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.25);border-radius:8px;background:#fff;color:#1a1a1a}
+input[type=range]{accent-color:#185FA5;width:130px}
+.unit{font-size:12px;color:#888780;white-space:nowrap}
+.br-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:13px;gap:8px}
+.br-row:last-child{border-bottom:none}
+.br-label{color:#5F5E5A}
+.br-val{font-weight:500;color:#1a1a1a;white-space:nowrap}
+.br-row.indent .br-label{padding-left:12px;color:#888780}
+.br-row.total-row{border-top:1.5px solid rgba(0,0,0,0.2);margin-top:6px;padding-top:8px;font-weight:500}
+.br-row.total-row .br-label{color:#1a1a1a;font-size:14px}
+.br-row.total-row .br-val{font-size:14px}
+.status-bar{height:28px;border-radius:8px;background:#F1EFE8;margin:.75rem 0;position:relative;overflow:hidden}
+.status-fill{height:100%;border-radius:8px;transition:width .4s}
+.status-label{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;height:100%}
+.notice{font-size:13px;border-radius:8px;padding:10px 14px;line-height:1.65;margin-top:6px}
+.notice.ok{background:#EAF3DE;color:#27500A}
+.notice.ng{background:#FCEBEB;color:#A32D2D}
+.chart-wrap{position:relative;width:100%;height:320px;margin-top:.75rem}
+.legend{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:4px;font-size:12px;color:#5F5E5A}
+.revenue-section{background:#fff;border:0.5px solid rgba(0,0,0,0.12);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.85rem}
+.sub-toggle{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.sub-toggle label{font-size:14px;color:#1a1a1a;flex:1;min-width:160px}
+.sub-toggle .hint{font-size:11px;color:#888780}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="page-header">
+  <h1>エアコンマートアカデミー｜動画プラットフォーム・Airbnb・損益分岐点</h1>
+  <p>10月ローンチに向けたプラットフォーム選定、Airbnb運営コスト、新収益を加味した損益分岐点シミュレーター</p>
+</div>
+
+<div class="tab-row">
+  <button class="tab active" onclick="sw('platform',event)">動画プラットフォーム選定</button>
+  <button class="tab" onclick="sw('airbnb',event)">Airbnb運営ガイド</button>
+  <button class="tab" onclick="sw('bep',event)">損益分岐点（新版）</button>
+</div>
+
+<!-- ═══════════════════════════
+     動画プラットフォーム
+═══════════════════════════ -->
+<div class="pane active" id="pane-platform">
+<div class="sec-header">
+  <h2>動画プラットフォーム選定</h2>
+  <p>10月ローンチ・卒業生50名への一斉案内を前提に、コスパと立ち上げ速度を最優先で選定。</p>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">選定基準と前提条件</div>
+  </div>
+  <table class="ct">
+    <tr><th>条件</th><th>内容</th></tr>
+    <tr><td>ローンチ時期</td><td>2025年10月（卒業生50名への一斉案内）</td></tr>
+    <tr><td>プラン数</td><td>ベーシック（2,980円）・ビジネス（4,980円）・卒業生限定（980円）の3プラン</td></tr>
+    <tr><td>必須機能</td><td>月額サブスク課金・動画ホスティング・会員別アクセス制御・日本語対応</td></tr>
+    <tr><td>NG</td><td>YouTubeの限定公開（課金・会員管理が不可）</td></tr>
+    <tr><td>コスト優先度</td><td>初期ローンチ時は月数千円〜で済むものが理想</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">Uscreen（最有力候補）</div>
+    <div class="badges"><span class="badge rec">最推奨</span><span class="badge ok">動画サブスク特化</span></div>
+  </div>
+  <div class="card-body">
+    動画サブスクに完全特化したプラットフォーム。月額サブスク・PPV・会員レベル別アクセス制御をすべて標準装備。モバイルアプリ対応、Stripe連携、日本円請求もOK。卒業生向け限定プランのURL発行も簡単にできる。
+  </div>
+  <table class="ct">
+    <tr><th>プラン</th><th>月額</th><th>手数料</th><th>特徴</th></tr>
+    <tr><td>Basic</td><td class="amber">$149〜/月（約22,000円）</td><td>0%</td><td>無制限動画・無制限会員・3プラン設定可</td></tr>
+  </table>
+  <div class="green-box">
+    <strong>10月の試算：</strong>卒業生50名が全員980円プランに申し込んだ場合、初月売上 49,000円。プラットフォーム費22,000円を引いても<strong>初月からプラス</strong>になる。ベーシック（2,980円）が10名申し込むだけで採算が取れる構造。
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">Thinkific（次点・コース重視なら）</div>
+    <div class="badges"><span class="badge ok">コスパ良</span><span class="badge info">コース+サブスク対応</span></div>
+  </div>
+  <div class="card-body">
+    コース販売とサブスクの両方に対応。年払いにすると月$36〜で利用可能（Starterプラン）。ただし動画ホスティングは外部（Vimeoなど）との併用が必要な場合がある。シンプルな構成で使いやすい。
+  </div>
+  <table class="ct">
+    <tr><th>プラン</th><th>月額（月払い）</th><th>手数料</th><th>備考</th></tr>
+    <tr><td>Basic</td><td class="green">$49/月（約7,000円）</td><td>0%</td><td>コース無制限・サブスク対応</td></tr>
+    <tr><td>Start</td><td class="green">$36/月（年払い）</td><td>0%</td><td>最安構成</td></tr>
+  </table>
+  <div class="hl">
+    <strong>推奨用途：</strong>コース形式（章立て・テスト付き）で提供したい場合に向いている。動画だけ流せればいいなら Uscreen の方がシンプル。
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">Podia（軽量・オールインワン）</div>
+    <div class="badges"><span class="badge ok">手軽に始められる</span></div>
+  </div>
+  <div class="card-body">
+    コース・メンバーシップ・メール配信が一体型。月$39〜で手数料5%。卒業生への一斉メール案内機能も内蔵されているため、別途メール配信ツールが不要。立ち上げを最速にしたい場合に最適。
+  </div>
+  <table class="ct">
+    <tr><th>プラン</th><th>月額</th><th>手数料</th><th>特徴</th></tr>
+    <tr><td>Mover</td><td class="green">$39/月（約5,600円）</td><td>5%</td><td>無制限コース・メール配信内蔵</td></tr>
+    <tr><td>Shaker</td><td>$89/月（約12,800円）</td><td>0%</td><td>アフィリエイト・ブログ機能追加</td></tr>
+  </table>
+  <div class="hl">
+    <strong>手数料計算：</strong>月売上20万円 × 5% = 1万円の手数料。月売上が増えると Shaker（手数料0%）への移行がお得になる分岐点は約180,000円/月。
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">プラットフォーム比較まとめ</div>
+  </div>
+  <table class="ct">
+    <tr><th>サービス</th><th>月額</th><th>手数料</th><th>動画特化</th><th>推奨場面</th></tr>
+    <tr><td>Uscreen</td><td class="amber">$149〜</td><td class="green">0%</td><td>◎ 動画サブスク専用</td><td>動画メインで長期的に伸ばすなら最適</td></tr>
+    <tr><td>Thinkific</td><td class="green">$36〜</td><td class="green">0%</td><td>○ コース+動画</td><td>コース形式・月コスト重視</td></tr>
+    <tr><td>Podia</td><td class="green">$39〜</td><td class="amber">5%</td><td>○ 動画+メール一体</td><td>立ち上げ速度重視・メール配信も欲しい</td></tr>
+    <tr><td>Kajabi</td><td class="red">$149〜</td><td class="green">0%</td><td>○ オールインワン</td><td>本格的なビジネス基盤が欲しいなら</td></tr>
+  </table>
+  <div class="green-box">
+    <strong>結論：10月ローンチにはPodiaかThinkificを推奨。</strong>月5,600〜7,000円で動かせ、卒業生50名への一斉案内も初月で黒字になる。会員数が増えて動画コンテンツが主軸になってきたらUsScreenへ移行する2段構えが現実的。
+  </div>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════
+     Airbnb運営ガイド
+═══════════════════════════ -->
+<div class="pane" id="pane-airbnb">
+<div class="sec-header">
+  <h2>Airbnb運営ガイド（大宮近郊・宿泊用物件）</h2>
+  <p>大宮近郊で別途物件を賃借してAirbnb運営する場合の手順・コスト・収支の全体像。</p>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">さいたま市・大宮エリアの民泊規制</div>
+    <div class="badges"><span class="badge ok">条件良好</span></div>
+  </div>
+  <div class="card-body">
+    調査結果：さいたま市は住宅宿泊事業法に基づく独自の条例制限を設けておらず、工業専用地域を除けば区域・期間の制限なしで運営可能。川口市は別途制限あり（今回は対象外）。
+  </div>
+  <table class="ct">
+    <tr><th>項目</th><th>内容</th></tr>
+    <tr><td>年間営業日上限</td><td>180日（住宅宿泊事業法の全国共通ルール）</td></tr>
+    <tr><td>さいたま市の条例</td><td class="green">制限なし（工業専用地域は除く）</td></tr>
+    <tr><td>届出先</td><td>埼玉県観光課（電話：048-830-3959）</td></tr>
+    <tr><td>届出方法</td><td>民泊制度運営システムから電子申請（原則）</td></tr>
+    <tr><td>標識掲示</td><td>届出後、玄関・門扉の見やすい位置に掲示義務あり</td></tr>
+    <tr><td>宿泊者名簿</td><td>氏名・住所・職業・宿泊日を記録し3年間保管</td></tr>
+    <tr><td>安全措置</td><td>非常用照明・火災報知設備などの設置（物件構造により異なる）</td></tr>
+    <tr><td>ゴミ処理</td><td>民泊ゴミはすべて「事業ゴミ」扱い（一般家庭ゴミと分別）</td></tr>
+  </table>
+  <div class="warn-box">
+    <strong>重要：</strong>賃貸物件でAirbnbを行う場合、<strong>大家・管理会社の転貸承諾が必須</strong>。マンションの場合は管理規約で民泊禁止になっていないか事前確認が必要。一戸建ての方がこのリスクが低い。
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">運営の全体フロー</div>
+  </div>
+  <div class="step-flow">
+    <div class="step"><div class="snum">1</div><div><strong style="font-weight:500">物件選定：</strong>大宮駅徒歩圏（15分以内）の2LDK〜戸建てを賃貸。家賃8〜12万円が目安。管理規約・大家の民泊許可を事前確認。</div></div>
+    <div class="sarr">↓</div>
+    <div class="step"><div class="snum">2</div><div><strong style="font-weight:500">初期準備（1〜2ヶ月）：</strong>埼玉県観光課へ届出→受理。家具・寝具・アメニティ購入（初期費用20〜40万円）。スマートロック設置（鍵の受け渡しを自動化）。</div></div>
+    <div class="sarr">↓</div>
+    <div class="step"><div class="snum">3</div><div><strong style="font-weight:500">掲載・設定：</strong>Airbnb・Booking.com等に掲載。写真はプロに依頼すると評価が上がりやすい（1〜2万円）。価格はAirbnbスマートプライシングで自動最適化。</div></div>
+    <div class="sarr">↓</div>
+    <div class="step"><div class="snum">4</div><div><strong style="font-weight:500">日常運営：</strong>予約管理・ゲスト対応（メッセージ自動化ツールを活用）・清掃手配（チェックアウト翌日に清掃業者を自動手配）。</div></div>
+    <div class="sarr">↓</div>
+    <div class="step"><div class="snum">5</div><div><strong style="font-weight:500">講習日のブロック：</strong>講習前日〜翌日をAirbnbカレンダーでブロック。月2〜4日を自社使用としてキープする。</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">清掃代行の選択肢とコスト</div>
+    <div class="badges"><span class="badge info">運営の核心</span></div>
+  </div>
+  <div class="card-body">
+    清掃はAirbnb運営で最も手間のかかる業務。チェックアウト後の清掃・リネン交換が毎回発生する。完全に自動化するのがポイント。
+  </div>
+  <table class="ct">
+    <tr><th>方式</th><th>コスト目安（1回）</th><th>特徴</th><th>推奨度</th></tr>
+    <tr><td>清掃代行業者（部屋単位）</td><td class="amber">3,500〜6,000円/回</td><td>1Kなら3,500円〜、2LDKで5,000〜6,000円が相場。AirbnbカレンダーとAPI連携できる業者なら自動手配が可能</td><td class="green">◎ 推奨</td></tr>
+    <tr><td>民泊運営代行（完全委託）</td><td class="red">売上の20〜35%</td><td>ゲスト対応・清掃・予約管理すべて丸投げ。月売上10万円なら2〜3.5万円の手数料。楽だがコスト高</td><td>△ 黒字余裕があれば</td></tr>
+    <tr><td>部分代行（清掃のみ）</td><td class="green">3,500〜5,000円/回</td><td>ゲスト対応は自分。清掃のみ外注。コスト最適。メッセージ自動化ツールと組み合わせれば運営コスト最小化</td><td class="green">◎ 最推奨</td></tr>
+    <tr><td>住宅宿泊管理業者（届出のみ）</td><td class="green">月1〜2万円</td><td>遠隔地オーナーに必要な場合あり。清掃は別途手配</td><td>○ 必要なら</td></tr>
+  </table>
+  <div class="hl">
+    <strong>大宮エリアの清掃業者例：</strong>House Care（東京・神奈川・埼玉対応）、Airbnbと連携できる地元清掃業者。Airbnbのホストツールで清掃業者をカレンダー連携すると、予約が入った瞬間に清掃の自動手配が完了する。
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">月間コスト・収益シミュレーション</div>
+  </div>
+  <table class="ct">
+    <tr><th>費目</th><th>月額（概算）</th><th>備考</th></tr>
+    <tr><td>物件家賃</td><td class="amber">80,000〜120,000円</td><td>大宮徒歩圏2LDK〜戸建て想定</td></tr>
+    <tr><td>清掃代行（月15回想定）</td><td class="amber">52,500〜75,000円</td><td>3,500〜5,000円 × 月15回</td></tr>
+    <tr><td>リネン・消耗品</td><td>10,000〜15,000円</td><td>タオル・シーツ・アメニティ補充</td></tr>
+    <tr><td>スマートロック（月割）</td><td>500〜1,000円</td><td>初期費用2〜3万円の月割り</td></tr>
+    <tr><td>電気・水道・ガス</td><td>10,000〜15,000円</td><td>ゲスト使用分含む</td></tr>
+    <tr><td>Airbnb手数料（売上の3%）</td><td>約3,000〜6,000円</td><td>売上に連動</td></tr>
+    <tr><td>予備・雑費</td><td>5,000円</td><td>備品補充・軽微修繕など</td></tr>
+    <tr><td style="font-weight:500">月間コスト合計（概算）</td><td class="red" style="font-weight:500">約161,000〜231,000円</td><td>家賃・清掃規模による</td></tr>
+  </table>
+  <div class="divider"></div>
+  <table class="ct">
+    <tr><th>収入シナリオ</th><th>宿泊単価</th><th>稼働日数</th><th>月収入</th><th>損益</th></tr>
+    <tr><td>保守的（稼働率50%）</td><td>7,000円</td><td>月90日×50%=45泊</td><td class="amber">315,000円</td><td class="green">+84,000〜154,000円</td></tr>
+    <tr><td>標準（稼働率60%）</td><td>8,000円</td><td>54泊</td><td class="green">432,000円</td><td class="green">+201,000〜271,000円</td></tr>
+    <tr><td>好調（稼働率70%）</td><td>9,000円</td><td>63泊</td><td class="green">567,000円</td><td class="green">+336,000〜406,000円</td></tr>
+  </table>
+  <div class="warn-box">
+    <strong>180日ルールの注意：</strong>住宅宿泊事業法により年間180日が上限。月平均15日稼働（月90日÷6ヶ月）が上限の目安。繁忙期（春・夏）に稼働日を集中させる戦略が有効。また講習日（月2〜4日）はブロックするため実質的な稼働可能日は月13〜14日程度。
+  </div>
+  <div class="green-box">
+    <strong>エアコンマートとしての相乗効果：</strong>宿泊ゲストに「エアコン取付講習のチラシ」を置くと認知拡大になる。DIY好き・業者向けの宿として打ち出すと差別化にもなる。
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">初期費用と回収シミュレーション</div>
+  </div>
+  <table class="ct">
+    <tr><th>初期費用項目</th><th>金額目安</th></tr>
+    <tr><td>敷金・礼金（家賃2〜3ヶ月分）</td><td>160,000〜360,000円</td></tr>
+    <tr><td>家具・ベッド・寝具</td><td>80,000〜150,000円</td></tr>
+    <tr><td>アメニティ初期ストック</td><td>20,000〜30,000円</td></tr>
+    <tr><td>スマートロック</td><td>20,000〜30,000円</td></tr>
+    <tr><td>消防設備確認・対応</td><td>10,000〜50,000円（物件による）</td></tr>
+    <tr><td>プロ写真撮影</td><td>10,000〜20,000円</td></tr>
+    <tr><td style="font-weight:500">初期費用合計</td><td class="amber" style="font-weight:500">約30〜64万円</td></tr>
+  </table>
+  <div class="hl">
+    <strong>回収期間：</strong>月の純利益（家賃・清掃・光熱費差し引き後）が8〜15万円の場合、初期費用30〜64万円の回収には2〜8ヶ月。稼働率次第だが早ければ半年以内に回収可能。
+  </div>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════
+     損益分岐点（新版）
+═══════════════════════════ -->
+<div class="pane" id="pane-bep">
+<div class="sec-header">
+  <h2>損益分岐点シミュレーター（新版）</h2>
+  <p>動画サブスク収入・Airbnb収益・埼玉サブ講師による出張費削減を加味した更新版。</p>
+</div>
+
+<div class="sim-section">
+  <div class="st">会場別受講者数</div>
+  <div class="srow">
+    <div style="flex:1"><label>大阪松原（MAX 8名）<span class="hint" id="osaka-note">—</span></label></div>
+    <input type="range" id="osaka-r" min="2" max="8" step="2" value="8" oninput="syncO(this.value)">
+    <input type="number" id="osaka-n" value="8" min="2" max="8" style="width:60px" onchange="syncON(this.value)">
+    <span class="unit">名</span>
+  </div>
+  <div class="srow">
+    <div style="flex:1"><label>埼玉大宮（MAX 10名）<span class="hint" id="saitama-note">—</span></label></div>
+    <input type="range" id="saitama-r" min="2" max="10" step="2" value="10" oninput="syncS(this.value)">
+    <input type="number" id="saitama-n" value="10" min="2" max="10" style="width:60px" onchange="syncSN(this.value)">
+    <span class="unit">名</span>
+  </div>
+</div>
+
+<div class="sim-section">
+  <div class="st">受講料・手数料</div>
+  <div class="srow"><label>受講料（税込）</label><input type="number" id="price" value="87780" onchange="calc()"><span class="unit">円</span></div>
+  <div class="srow"><label>遠方者割引</label><input type="number" id="discount" value="4000" style="width:75px" onchange="calc()"><span class="unit">円</span></div>
+  <div class="srow">
+    <label>遠方者割合</label>
+    <input type="range" id="remote-r" min="0" max="100" step="5" value="50" oninput="syncRem(this.value)">
+    <input type="number" id="remote-pct" value="50" style="width:60px" onchange="syncRemN(this.value)">
+    <span class="unit">%</span>
+  </div>
+  <div class="srow"><label>クレカ決済割合（3.6% / 残りは銀行1.5%）</label><input type="number" id="card-pct" value="50" style="width:60px" onchange="calc()"><span class="unit">%</span></div>
+</div>
+
+<div class="sim-section">
+  <div class="st">固定費（月額）</div>
+  <div class="srow"><label>人件費合計（講師20万+スタッフ10万+宮良40万）</label><div style="font-size:14px;font-weight:500">700,000円</div></div>
+  <div class="srow"><label>会場費（埼玉大宮）</label><input type="number" id="venue" value="250000" onchange="calc()"><span class="unit">円</span></div>
+  <div class="srow">
+    <label>出張・宿泊費<span class="hint">埼玉サブ講師確保後は削減可</span></label>
+    <input type="number" id="travel" value="114000" onchange="calc()">
+    <span class="unit">円</span>
+  </div>
+  <div class="srow">
+    <label>プラットフォーム費（動画）<span class="hint">Podia$39=5,600円 or Uscreen$149=22,000円</span></label>
+    <input type="number" id="platform-cost" value="5600" onchange="calc()">
+    <span class="unit">円/月</span>
+  </div>
+  <div class="srow"><label>Wi-Fi・研修機材</label><input type="number" id="equip" value="18333" onchange="calc()"><span class="unit">円</span></div>
+  <div class="srow"><label>広告費（リスティング）</label><input type="number" id="ads" value="50000" onchange="calc()"><span class="unit">円</span></div>
+  <div class="srow"><label>産業廃棄物・予備費</label><input type="number" id="other-fixed" value="45000" onchange="calc()"><span class="unit">円</span></div>
+</div>
+
+<div class="sim-section">
+  <div class="st">追加収入（新収益源）</div>
+  <div class="srow">
+    <label>動画サブスク 月間会員数 × 平均単価<span class="hint">例）卒業生50名 × 980円 = 49,000円</span></label>
+    <input type="number" id="sub-members" value="50" style="width:65px" onchange="calc()">
+    <span class="unit">名 ×</span>
+    <input type="number" id="sub-price" value="980" style="width:75px" onchange="calc()">
+    <span class="unit">円/月</span>
+  </div>
+  <div class="srow">
+    <label>Airbnb収益（月間純利益）<span class="hint">家賃・清掃費等差し引き後</span></label>
+    <input type="range" id="airbnb-r" min="0" max="300000" step="10000" value="0" oninput="syncAirbnb(this.value)">
+    <input type="number" id="airbnb-net" value="0" style="width:85px" onchange="syncAirbnbN(this.value)">
+    <span class="unit">円/月</span>
+  </div>
+  <div class="srow">
+    <label>人材媒体掲載料収入<span class="hint">親方掲載数 × 月額</span></label>
+    <input type="number" id="media-n" value="0" style="width:65px" onchange="calc()">
+    <span class="unit">社 ×</span>
+    <input type="number" id="media-p" value="4000" style="width:75px" onchange="calc()">
+    <span class="unit">円/月</span>
+  </div>
+</div>
+
+<div class="metrics">
+  <div class="mcard blue"><div class="ml">月間固定費合計</div><div class="mv" id="m-fixed">—</div></div>
+  <div class="mcard amber"><div class="ml">変動費/名</div><div class="mv" id="m-varpp">—</div></div>
+  <div class="mcard green"><div class="ml">追加収入（月）</div><div class="mv" id="m-extra">—</div></div>
+  <div class="mcard"><div class="ml">1名あたり貢献利益</div><div class="mv" id="m-cont">—</div></div>
+</div>
+
+<div class="sim-section">
+  <div class="st">損益分岐点</div>
+  <div class="br-row"><span class="br-label">月間固定費</span><span class="br-val" id="bd-fixed">—</span></div>
+  <div class="br-row"><span class="br-label">月間追加収入（サブスク等）</span><span class="br-val" id="bd-extra">—</span></div>
+  <div class="br-row"><span class="br-label">追加収入を加味した実質固定費負担</span><span class="br-val" id="bd-net-fixed">—</span></div>
+  <div class="br-row"><span class="br-label">1名あたり貢献利益</span><span class="br-val" id="bd-cont">—</span></div>
+  <div class="br-row"><span class="br-label">損益分岐点（最低必要受講者数）</span><span class="br-val" id="bd-bep-n">—</span></div>
+  <div class="br-row"><span class="br-label">大阪：最低必要人数（MAX8名）</span><span class="br-val" id="bd-osaka-min">—</span></div>
+  <div class="br-row"><span class="br-label">埼玉：最低必要人数（MAX10名）</span><span class="br-val" id="bd-saitama-min">—</span></div>
+  <div class="br-row"><span class="br-label">大阪の充填率（BEP達成に必要）</span><span class="br-val" id="bd-osaka-pct">—</span></div>
+  <div class="br-row"><span class="br-label">埼玉の充填率（BEP達成に必要）</span><span class="br-val" id="bd-saitama-pct">—</span></div>
+
+  <div style="margin-top:1rem">
+    <div style="font-size:12px;color:#5F5E5A;margin-bottom:6px" id="bar-label">—</div>
+    <div class="status-bar">
+      <div class="status-fill" id="bar-fill" style="width:0%"></div>
+      <div class="status-label" id="bar-text">—</div>
+    </div>
+  </div>
+  <div class="notice" id="bep-notice">—</div>
+</div>
+
+<div class="sim-section">
+  <div class="st">現在設定での月間損益</div>
+  <div class="br-row"><span class="br-label">講習売上（受講料収入）</span><span class="br-val" id="bd-rev">—</span></div>
+  <div class="br-row"><span class="br-label">追加収入合計</span><span class="br-val" id="bd-extra2">—</span></div>
+  <div class="br-row"><span class="br-label">月間変動費</span><span class="br-val" id="bd-var">—</span></div>
+  <div class="br-row"><span class="br-label">月間固定費</span><span class="br-val" id="bd-fixedtotal">—</span></div>
+  <div class="br-row total-row"><span class="br-label">月間損益</span><span class="br-val" id="bd-profit">—</span></div>
+  <div class="br-row"><span class="br-label">年間損益（×12）</span><span class="br-val" id="bd-annual">—</span></div>
+</div>
+
+<div class="chart-wrap">
+  <canvas id="bepChart" role="img" aria-label="受講者数と損益の関係グラフ">受講者数と損益の関係を示す折れ線グラフ</canvas>
+</div>
+<div class="legend" id="chart-legend"></div>
+
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function sw(id,e){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('pane-'+id).classList.add('active');
+  if(id==='bep') calc();
+}
+function g(id){return parseFloat(document.getElementById(id).value)||0;}
+function fmt(n){return Math.round(n).toLocaleString('ja-JP')+'円';}
+function fmtSign(n){return (n>=0?'+':'')+Math.round(n).toLocaleString('ja-JP')+'円';}
+function syncO(v){document.getElementById('osaka-n').value=v;calc();}
+function syncON(v){v=Math.min(8,Math.max(2,parseInt(v)||2));document.getElementById('osaka-n').value=v;document.getElementById('osaka-r').value=v;calc();}
+function syncS(v){document.getElementById('saitama-n').value=v;calc();}
+function syncSN(v){v=Math.min(10,Math.max(2,parseInt(v)||2));document.getElementById('saitama-n').value=v;document.getElementById('saitama-r').value=v;calc();}
+function syncRem(v){document.getElementById('remote-pct').value=v;calc();}
+function syncRemN(v){document.getElementById('remote-r').value=Math.min(100,Math.max(0,v));calc();}
+function syncAirbnb(v){document.getElementById('airbnb-net').value=v;calc();}
+function syncAirbnbN(v){document.getElementById('airbnb-r').value=Math.min(300000,Math.max(0,v));calc();}
+
+let bepChart=null;
+
+function calcVarPP(n,price,discount,remotePct,cardPct){
+  const remN=Math.round(n*remotePct);
+  const cardN=Math.round(n*cardPct);
+  const bankN=n-cardN;
+  const fee=(price*0.036*cardN+price*0.015*bankN)/n;
+  const disc=discount*remN/n;
+  const pairs=Math.floor(n/2);
+  const pairUnit=320;
+  const matPair=(pairUnit*5)+(200*6);
+  const matPP=(matPair*pairs/n)+(60)+(310)+(150)+(200)+(400);
+  return matPP+1250+1000+100+fee+disc;
+}
+
+function calcRevPP(price,discount,remotePct,cardPct,n){
+  const remN=Math.round(n*remotePct);
+  const cardN=Math.round(n*cardPct);
+  const bankN=n-cardN;
+  const fee=(price*0.036*cardN+price*0.015*bankN)/n;
+  const disc=discount*remN/n;
+  return price-disc-fee;
+}
+
+function calc(){
+  const oN=Math.min(8,Math.max(2,parseInt(document.getElementById('osaka-n').value)||2));
+  const sN=Math.min(10,Math.max(2,parseInt(document.getElementById('saitama-n').value)||2));
+  document.getElementById('osaka-note').textContent=oN+'名 → '+Math.floor(oN/2)+'ペア';
+  document.getElementById('saitama-note').textContent=sN+'名 → '+Math.floor(sN/2)+'ペア';
+  const totalN=oN+sN;
+  const price=g('price');
+  const discount=g('discount');
+  const remotePct=g('remote-pct')/100;
+  const cardPct=g('card-pct')/100;
+
+  const fixedBase=700000+g('venue')+g('travel')+g('platform-cost')+g('equip')+g('ads')+g('other-fixed');
+  const mealFixed=1000*3*2;
+  const totalFixed=fixedBase+mealFixed;
+
+  const subIncome=g('sub-members')*g('sub-price');
+  const airbnbIncome=g('airbnb-net');
+  const mediaIncome=g('media-n')*g('media-p');
+  const extraTotal=subIncome+airbnbIncome+mediaIncome;
+
+  const varPP=calcVarPP(totalN,price,discount,remotePct,cardPct);
+  const revPP=calcRevPP(price,discount,remotePct,cardPct,totalN);
+  const contPP=revPP-varPP;
+  const netFixed=Math.max(0,totalFixed-extraTotal);
+  const bepN=Math.ceil(netFixed/contPP);
+  const osakaR=oN/(oN+sN);
+  const bepO=Math.ceil(bepN*osakaR);
+  const bepS=Math.max(0,bepN-bepO);
+  const bepOPct=Math.round(bepO/8*100);
+  const bepSPct=Math.round(bepS/10*100);
+
+  const totalRev=revPP*totalN;
+  const totalVar=varPP*totalN;
+  const profit=totalRev+extraTotal-totalVar-totalFixed;
+  const fillPct=bepN>0?Math.min(100,Math.max(0,Math.round((totalN/bepN)*100))):100;
+
+  document.getElementById('m-fixed').textContent=fmt(totalFixed);
+  document.getElementById('m-varpp').textContent=fmt(varPP);
+  document.getElementById('m-extra').textContent=fmt(extraTotal);
+  document.getElementById('m-cont').textContent=fmt(contPP);
+  document.getElementById('bd-fixed').textContent=fmt(totalFixed);
+  document.getElementById('bd-extra').textContent=fmt(extraTotal);
+  document.getElementById('bd-net-fixed').textContent=fmt(netFixed);
+  document.getElementById('bd-cont').textContent=fmt(contPP);
+  document.getElementById('bd-bep-n').textContent=bepN<=0?'追加収入だけで黒字':bepN+'名（月間合計）';
+  document.getElementById('bd-osaka-min').textContent=bepO+'名以上';
+  document.getElementById('bd-saitama-min').textContent=bepS+'名以上';
+  document.getElementById('bd-osaka-pct').textContent=bepOPct+'%（'+bepO+'/8名）';
+  document.getElementById('bd-saitama-pct').textContent=bepSPct+'%（'+bepS+'/10名）';
+
+  const isProfit=profit>=0;
+  document.getElementById('bar-fill').style.width=fillPct+'%';
+  document.getElementById('bar-fill').style.background=isProfit?'#639922':'#E24B4A';
+  document.getElementById('bar-label').textContent='充填率：'+totalN+'名 / BEP '+bepN+'名（'+fillPct+'%）';
+  document.getElementById('bar-text').textContent=fillPct+'%';
+  document.getElementById('bar-text').style.color=isProfit?'#3B6D11':'#A32D2D';
+
+  document.getElementById('bd-rev').textContent=fmt(totalRev);
+  document.getElementById('bd-extra2').textContent=fmt(extraTotal);
+  document.getElementById('bd-var').textContent=fmt(totalVar);
+  document.getElementById('bd-fixedtotal').textContent=fmt(totalFixed);
+  const profEl=document.getElementById('bd-profit');
+  profEl.textContent=fmtSign(profit);
+  profEl.style.color=isProfit?'#3B6D11':'#A32D2D';
+  document.getElementById('bd-annual').textContent=fmtSign(profit*12);
+
+  const noticeEl=document.getElementById('bep-notice');
+  if(bepN<=0){
+    noticeEl.className='notice ok';
+    noticeEl.textContent='追加収入（'+fmt(extraTotal)+'）だけで固定費が回収できる状態です。受講者が1名でも黒字になります。';
+  } else if(isProfit){
+    noticeEl.className='notice ok';
+    noticeEl.textContent='現在の受講者数（'+totalN+'名）で損益分岐点（'+bepN+'名）を超えています。月間'+fmt(profit)+'の黒字。';
+  } else {
+    noticeEl.className='notice ng';
+    noticeEl.textContent='損益分岐点まであと'+(bepN-totalN)+'名必要です。現在月間'+fmt(-profit)+'の赤字。追加収入（サブスク等）を増やすとBEPが下がります。';
+  }
+
+  const maxN=18;const labels=[];const revLine=[];const costLine=[];const profitLine=[];
+  for(let n=2;n<=maxN;n+=2){
+    labels.push(n+'名');
+    const r=calcRevPP(price,discount,remotePct,cardPct,n)*n+extraTotal;
+    const v=calcVarPP(n,price,discount,remotePct,cardPct)*n;
+    revLine.push(Math.round(r/10000));
+    costLine.push(Math.round((v+totalFixed)/10000));
+    profitLine.push(Math.round((r-v-totalFixed)/10000));
+  }
+  if(bepChart){bepChart.destroy();}
+  bepChart=new Chart(document.getElementById('bepChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'売上+追加収入（万円）',data:revLine,borderColor:'#3B6D11',borderWidth:2,pointBackgroundColor:'#3B6D11',pointRadius:3,tension:.3,fill:false},
+      {label:'総コスト（万円）',data:costLine,borderColor:'#A32D2D',borderWidth:2,pointBackgroundColor:'#A32D2D',pointRadius:3,tension:.3,borderDash:[4,3],fill:false},
+      {label:'損益（万円）',data:profitLine,borderColor:'#185FA5',borderWidth:1.5,pointBackgroundColor:'#185FA5',pointRadius:3,tension:.3,borderDash:[2,2],fill:false},
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'万円'}}},
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#5F5E5A',font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#5F5E5A',font:{size:11},callback:v=>v+'万'}}
+      }
+    }
+  });
+  document.getElementById('chart-legend').innerHTML=[
+    {c:'#3B6D11',l:'売上+追加収入',dash:false},{c:'#A32D2D',l:'総コスト',dash:true},{c:'#185FA5',l:'損益',dash:true}
+  ].map(i=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:${i.c};display:inline-block;${i.dash?'border-top:2px dashed '+i.c+';background:none':''}"></span><span style="font-size:12px;color:#5F5E5A">${i.l}</span></span>`).join('');
+}
+calc();
+</script>
+</body>
+</html>
