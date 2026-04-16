@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>損益分岐点シミュレーター｜エアコンマートアカデミー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#fff;color:#1a1a1a;padding:1.5rem}
+.wrap{max-width:760px;margin:0 auto;padding:1rem 0}
+h1{font-size:18px;font-weight:500;margin-bottom:4px}
+.sub{font-size:13px;color:#5F5E5A;margin-bottom:1.5rem}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-bottom:1.25rem}
+.mc{background:#F1EFE8;border-radius:8px;padding:.85rem 1rem}
+.mc .ml{font-size:12px;color:#5F5E5A;margin-bottom:4px}
+.mc .mv{font-size:19px;font-weight:500;color:#1a1a1a}
+.mc.green .mv{color:#3B6D11}.mc.red .mv{color:#A32D2D}.mc.blue .mv{color:#185FA5}.mc.amber .mv{color:#BA7517}
+.section{background:#fff;border:0.5px solid rgba(0,0,0,0.15);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.st{font-size:12px;font-weight:500;color:#5F5E5A;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:0.5px solid rgba(0,0,0,0.15)}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+label{font-size:14px;color:#1a1a1a;flex:1;min-width:160px}
+input[type=number]{font-size:14px;text-align:right;width:100px;padding:6px 8px;border:0.5px solid rgba(0,0,0,0.3);border-radius:8px;background:#fff;color:#1a1a1a}
+input[type=range]{width:140px;accent-color:#185FA5}
+.unit{font-size:12px;color:#5F5E5A;white-space:nowrap}
+.br-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.1);font-size:13px}
+.br-row:last-child{border-bottom:none}
+.br-label{color:#5F5E5A}.br-val{color:#1a1a1a;font-weight:500}
+.status-bar{height:24px;border-radius:8px;background:#F1EFE8;margin:1rem 0;position:relative;overflow:hidden}
+.status-fill{height:100%;border-radius:8px;transition:width .3s}
+.status-label{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;height:100%}
+.notice{font-size:12px;background:#F1EFE8;border-radius:8px;padding:8px 12px;color:#5F5E5A;line-height:1.6;margin-top:6px}
+.notice.ok{background:#EAF3DE;color:#3B6D11}
+.notice.ng{background:#FCEBEB;color:#A32D2D}
+.pair-note{font-size:11px;color:#5F5E5A;margin-top:2px}
+.chart-wrap{position:relative;width:100%;height:320px;margin-top:.5rem}
+.legend{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:4px;font-size:12px;color:#5F5E5A}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>損益分岐点シミュレーター｜エアコンマートアカデミー</h1>
+<p class="sub">大阪松原（MAX8名）+ 埼玉大宮（MAX10名）　月2講習・年24回　｜　2名1ペア制</p>
+
+<div class="section">
+  <div class="st">受講者数（調整可）</div>
+  <div class="row">
+    <div style="flex:1"><label>大阪松原（MAX 8名）</label><div class="pair-note" id="osaka-pair-note">—</div></div>
+    <input type="range" id="osaka-r" min="2" max="8" step="2" value="8" oninput="syncO(this.value)">
+    <input type="number" id="osaka-n" value="8" min="2" max="8" style="width:60px" onchange="syncON(this.value)">
+    <span class="unit">名</span>
+  </div>
+  <div class="row">
+    <div style="flex:1"><label>埼玉大宮（MAX 10名）</label><div class="pair-note" id="saitama-pair-note">—</div></div>
+    <input type="range" id="saitama-r" min="2" max="10" step="2" value="10" oninput="syncS(this.value)">
+    <input type="number" id="saitama-n" value="10" min="2" max="10" style="width:60px" onchange="syncSN(this.value)">
+    <span class="unit">名</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="st">受講料・手数料設定</div>
+  <div class="row"><label>受講料（税込）</label><input type="number" id="price" value="87780" onchange="calc()"><span class="unit">円</span></div>
+  <div class="row"><label>遠方者割引</label><input type="number" id="discount" value="4000" style="width:80px" onchange="calc()"><span class="unit">円</span></div>
+  <div class="row">
+    <label>遠方者割合</label>
+    <input type="range" id="remote-r" min="0" max="100" step="5" value="50" oninput="syncRemote(this.value)">
+    <input type="number" id="remote-pct" value="50" style="width:60px" onchange="syncRemotePct(this.value)">
+    <span class="unit">%</span>
+  </div>
+  <div class="row">
+    <label>クレカ決済割合（手数料3.6%）</label>
+    <input type="number" id="card-pct" value="50" style="width:60px" onchange="calc()">
+    <span class="unit">%</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="st">固定費（月額）</div>
+  <div class="row"><label>人件費（講師20万+スタッフ10万+宮良40万）</label><div style="font-size:14px;font-weight:500" id="disp-labor">700,000円</div></div>
+  <div class="row"><label>会場費（埼玉大宮）</label><input type="number" id="venue" value="250000" onchange="calc()"><span class="unit">円</span></div>
+  <div class="row"><label>出張・宿泊費（3名）</label><input type="number" id="travel" value="114000" onchange="calc()"><span class="unit">円</span></div>
+  <div class="row"><label>Wi-Fi・研修機材月額換算</label><input type="number" id="equip" value="18333" onchange="calc()"><span class="unit">円</span></div>
+  <div class="row"><label>広告費</label><input type="number" id="ads" value="50000" onchange="calc()"><span class="unit">円</span></div>
+  <div class="row"><label>産業廃棄物・予備費</label><input type="number" id="other-fixed" value="45000" onchange="calc()"><span class="unit">円</span></div>
+</div>
+
+<div class="metrics">
+  <div class="mc blue"><div class="ml">月間固定費合計</div><div class="mv" id="m-fixed">—</div></div>
+  <div class="mc amber"><div class="ml">変動費/名（平均）</div><div class="mv" id="m-varpp">—</div></div>
+  <div class="mc blue"><div class="ml">実質収入/名（平均）</div><div class="mv" id="m-revpp">—</div></div>
+  <div class="mc"><div class="ml">貢献利益/名</div><div class="mv" id="m-contpp">—</div></div>
+</div>
+
+<div class="section">
+  <div class="st">損益分岐点</div>
+  <div class="br-row"><span class="br-label">月間固定費</span><span class="br-val" id="bd-fixed">—</span></div>
+  <div class="br-row"><span class="br-label">1名あたり貢献利益</span><span class="br-val" id="bd-cont">—</span></div>
+  <div class="br-row"><span class="br-label">損益分岐点（最低必要受講者数）</span><span class="br-val" id="bd-bep-n">—</span></div>
+  <div class="br-row"><span class="br-label">うち大阪：最低必要人数</span><span class="br-val" id="bd-osaka-min">—</span></div>
+  <div class="br-row"><span class="br-label">うち埼玉：最低必要人数</span><span class="br-val" id="bd-saitama-min">—</span></div>
+  <div class="br-row"><span class="br-label">大阪の充填率（BEP達成に必要）</span><span class="br-val" id="bd-osaka-pct">—</span></div>
+  <div class="br-row"><span class="br-label">埼玉の充填率（BEP達成に必要）</span><span class="br-val" id="bd-saitama-pct">—</span></div>
+  <div style="margin-top:1rem">
+    <div style="font-size:12px;color:#5F5E5A;margin-bottom:6px" id="bar-label">—</div>
+    <div class="status-bar">
+      <div class="status-fill" id="bar-fill" style="width:0%;background:#639922"></div>
+      <div class="status-label" id="bar-text" style="color:#3B6D11">—</div>
+    </div>
+  </div>
+  <div class="notice" id="bep-notice">—</div>
+</div>
+
+<div class="section">
+  <div class="st">現在の受講者数での損益</div>
+  <div class="br-row"><span class="br-label">月間売上（受講料収入）</span><span class="br-val" id="bd-rev">—</span></div>
+  <div class="br-row"><span class="br-label">月間変動費合計</span><span class="br-val" id="bd-var">—</span></div>
+  <div class="br-row"><span class="br-label">月間固定費合計</span><span class="br-val" id="bd-fixedtotal">—</span></div>
+  <div class="br-row" style="font-weight:500;border-top:1.5px solid rgba(0,0,0,0.4);padding-top:6px;margin-top:4px"><span class="br-label" style="color:#1a1a1a">月間損益</span><span class="br-val" id="bd-profit">—</span></div>
+  <div class="br-row"><span class="br-label">年間損益（×12）</span><span class="br-val" id="bd-annual">—</span></div>
+</div>
+
+<div class="chart-wrap">
+  <canvas id="bepChart" role="img" aria-label="受講者数と損益の関係を示す折れ線グラフ">受講者数が増えると損益がプラスに転じる損益分岐点グラフ</canvas>
+</div>
+<div class="legend" id="chart-legend"></div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function g(id){return parseFloat(document.getElementById(id).value)||0;}
+function fmt(n){return Math.round(n).toLocaleString('ja-JP')+'円';}
+function fmtSign(n){return (n>=0?'+':'')+Math.round(n).toLocaleString('ja-JP')+'円';}
+function syncO(v){document.getElementById('osaka-n').value=v;calc();}
+function syncON(v){v=Math.min(8,Math.max(2,parseInt(v)||2));document.getElementById('osaka-n').value=v;document.getElementById('osaka-r').value=v;calc();}
+function syncS(v){document.getElementById('saitama-n').value=v;calc();}
+function syncSN(v){v=Math.min(10,Math.max(2,parseInt(v)||2));document.getElementById('saitama-n').value=v;document.getElementById('saitama-r').value=v;calc();}
+function syncRemote(v){document.getElementById('remote-pct').value=v;calc();}
+function syncRemotePct(v){document.getElementById('remote-r').value=Math.min(100,Math.max(0,v));calc();}
+
+let bepChart=null;
+
+function calcVarPerPerson(n,price,discount,remotePct,cardPct){
+  const remoteStudents=Math.round(n*remotePct);
+  const cardStudents=Math.round(n*cardPct);
+  const bankStudents=n-cardStudents;
+  const feeCard=price*0.036*cardStudents;
+  const feeBank=price*0.015*bankStudents;
+  const totalFee=(feeCard+feeBank);
+  const totalDiscount=discount*remoteStudents;
+  const pairU=320;const pairs=Math.floor(n/2);
+  const matPair=(pairU*5)+(200*6);
+  const matPerPerson=(matPair*pairs/n)+(60*1)+(310)+(150)+(200)+(400);
+  const textPerPerson=1000+100+150;
+  const mealPerPerson=1000;
+  const glove=100;
+  const feePerPerson=(totalFee+totalDiscount)/n;
+  return matPerPerson+textPerPerson+mealPerPerson+glove+feePerPerson;
+}
+
+function calcRevPerPerson(price,discount,remotePct,cardPct,n){
+  const remoteStudents=Math.round(n*remotePct);
+  const cardStudents=Math.round(n*cardPct);
+  const bankStudents=n-cardStudents;
+  const feeCard=price*0.036*cardStudents;
+  const feeBank=price*0.015*bankStudents;
+  const totalFee=(feeCard+feeBank)/n;
+  const totalDiscount=discount*(Math.round(n*remotePct))/n;
+  return price-totalDiscount-totalFee;
+}
+
+function calc(){
+  const osakaN=Math.min(8,Math.max(2,parseInt(document.getElementById('osaka-n').value)||2));
+  const saitamaN=Math.min(10,Math.max(2,parseInt(document.getElementById('saitama-n').value)||2));
+  document.getElementById('osaka-pair-note').textContent=osakaN+'名 → '+Math.floor(osakaN/2)+'ペア';
+  document.getElementById('saitama-pair-note').textContent=saitamaN+'名 → '+Math.floor(saitamaN/2)+'ペア';
+
+  const totalN=osakaN+saitamaN;
+  const price=g('price');
+  const discount=g('discount');
+  const remotePct=g('remote-pct')/100;
+  const cardPct=g('card-pct')/100;
+
+  const fixed=700000+g('venue')+g('travel')+g('equip')+g('ads')+g('other-fixed');
+  const mealFixed=1000*3*2;
+  const totalFixed=fixed+mealFixed;
+
+  const varPP=calcVarPerPerson(totalN,price,discount,remotePct,cardPct);
+  const revPP=calcRevPerPerson(price,discount,remotePct,cardPct,totalN);
+  const contPP=revPP-varPP;
+
+  const bepN=Math.ceil(totalFixed/contPP);
+  const osakaRatio=osakaN/(osakaN+saitamaN);
+  const bepOsaka=Math.ceil(bepN*osakaRatio);
+  const bepSaitama=bepN-bepOsaka;
+  const bepOsakaPct=Math.round(bepOsaka/8*100);
+  const bepSaitamaPct=Math.round(bepSaitama/10*100);
+
+  const totalRev=revPP*totalN;
+  const totalVar=varPP*totalN;
+  const profit=totalRev-totalVar-totalFixed;
+  const fillPct=Math.min(100,Math.max(0,Math.round((totalN/bepN)*100)));
+
+  document.getElementById('m-fixed').textContent=fmt(totalFixed);
+  document.getElementById('m-varpp').textContent=fmt(varPP);
+  document.getElementById('m-revpp').textContent=fmt(revPP);
+  document.getElementById('m-contpp').textContent=fmt(contPP);
+  document.getElementById('bd-fixed').textContent=fmt(totalFixed);
+  document.getElementById('bd-cont').textContent=fmt(contPP);
+  document.getElementById('bd-bep-n').textContent=bepN+'名（月間合計）';
+  document.getElementById('bd-osaka-min').textContent=bepOsaka+'名以上';
+  document.getElementById('bd-saitama-min').textContent=bepSaitama+'名以上';
+  document.getElementById('bd-osaka-pct').textContent=bepOsakaPct+'%（'+bepOsaka+'/8名）';
+  document.getElementById('bd-saitama-pct').textContent=bepSaitamaPct+'%（'+bepSaitama+'/10名）';
+
+  const isProfit=profit>=0;
+  const fillColor=isProfit?'#639922':'#E24B4A';
+  document.getElementById('bar-fill').style.width=fillPct+'%';
+  document.getElementById('bar-fill').style.background=fillColor;
+  document.getElementById('bar-label').textContent='現在の充填率：'+totalN+'名 / BEP '+bepN+'名（'+fillPct+'%）';
+  document.getElementById('bar-text').textContent=fillPct+'%';
+  document.getElementById('bar-text').style.color=isProfit?'#3B6D11':'#A32D2D';
+
+  document.getElementById('bd-rev').textContent=fmt(totalRev);
+  document.getElementById('bd-var').textContent=fmt(totalVar);
+  document.getElementById('bd-fixedtotal').textContent=fmt(totalFixed);
+  const profitEl=document.getElementById('bd-profit');
+  profitEl.textContent=fmtSign(profit);
+  profitEl.style.color=isProfit?'#3B6D11':'#A32D2D';
+  document.getElementById('bd-annual').textContent=fmtSign(profit*12);
+
+  const noticeEl=document.getElementById('bep-notice');
+  if(isProfit){
+    noticeEl.className='notice ok';
+    noticeEl.textContent='現在の受講者数（'+totalN+'名）で損益分岐点（'+bepN+'名）を超えています。月間'+fmt(profit)+'の黒字。';
+  } else {
+    noticeEl.className='notice ng';
+    noticeEl.textContent='損益分岐点まであと'+(bepN-totalN)+'名必要です。現在月間'+fmt(-profit)+'の赤字。';
+  }
+
+  const maxN=18;
+  const labels=[];const revLine=[];const costLine=[];const profitLine=[];
+  for(let n=2;n<=maxN;n+=2){
+    labels.push(n+'名');
+    const r=calcRevPerPerson(price,discount,remotePct,cardPct,n)*n;
+    const v=calcVarPerPerson(n,price,discount,remotePct,cardPct)*n;
+    revLine.push(Math.round(r/10000));
+    costLine.push(Math.round((v+totalFixed)/10000));
+    profitLine.push(Math.round((r-v-totalFixed)/10000));
+  }
+
+  if(bepChart){bepChart.destroy();}
+  bepChart=new Chart(document.getElementById('bepChart'),{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'売上合計（万円）',data:revLine,borderColor:'#3B6D11',borderWidth:2,pointBackgroundColor:'#3B6D11',pointRadius:3,tension:.3,fill:false},
+        {label:'総コスト（万円）',data:costLine,borderColor:'#A32D2D',borderWidth:2,pointBackgroundColor:'#A32D2D',pointRadius:3,tension:.3,borderDash:[4,3],fill:false},
+        {label:'損益（万円）',data:profitLine,borderColor:'#185FA5',borderWidth:1.5,pointBackgroundColor:'#185FA5',pointRadius:3,tension:.3,borderDash:[2,2],fill:false},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'万円'}}},
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#5F5E5A',font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#5F5E5A',font:{size:11},callback:v=>v+'万'}}
+      }
+    }
+  });
+
+  document.getElementById('chart-legend').innerHTML=[
+    {c:'#3B6D11',l:'売上',dash:false},
+    {c:'#A32D2D',l:'総コスト',dash:true},
+    {c:'#185FA5',l:'損益',dash:true}
+  ].map(i=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:${i.c};display:inline-block;${i.dash?'border-top:2px dashed '+i.c+';background:none':''}"></span><span style="font-size:12px;color:#5F5E5A">${i.l}</span></span>`).join('');
+}
+calc();
+</script>
+</body>
+</html>
