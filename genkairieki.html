@@ -2,812 +2,126 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>エアコンマートアカデミー｜損益分岐点シミュレーター</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ホテル店舗情報｜洗浄事業部用</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:#F1EFE8;color:#1a1a1a;padding:1.5rem;min-height:100vh}
-.page{max-width:980px;margin:0 auto}
-.page-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid rgba(0,0,0,0.1)}
-.page-header h1{font-size:19px;font-weight:500;margin-bottom:4px}
-.page-header p{font-size:13px;color:#5F5E5A}
-.tab-row{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
-.tab{padding:7px 16px;font-size:13px;border:0.5px solid rgba(0,0,0,0.2);border-radius:8px;background:#fff;color:#5F5E5A;cursor:pointer;white-space:nowrap}
-.tab:hover{background:#F1EFE8}
-.tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.pane{display:none}.pane.active{display:block}
-
-/* 2カラムレイアウト */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
-@media(max-width:700px){.two-col{grid-template-columns:1fr}}
-
-/* セクションボックス */
-.sbox{background:#fff;border:0.5px solid rgba(0,0,0,0.12);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.85rem}
-.sbox-title{font-size:12px;font-weight:500;color:#5F5E5A;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:0.5px solid rgba(0,0,0,0.1)}
-
-/* 入力行 */
-.irow{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.ilabel{flex:1;min-width:150px}
-.ilabel label{font-size:14px;color:#1a1a1a;display:block}
-.ilabel .hint{font-size:11px;color:#888780;margin-top:2px;line-height:1.5}
-.ictl{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
-input[type=number]{font-size:14px;text-align:right;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.22);border-radius:8px;background:#fff;color:#1a1a1a}
-input[type=range]{accent-color:#185FA5}
-.unit{font-size:12px;color:#888780;white-space:nowrap}
-.note{font-size:12px;border-radius:6px;padding:6px 10px;margin-top:4px;line-height:1.6}
-.note-gray{background:#F1EFE8;color:#5F5E5A}
-.note-green{background:#EAF3DE;color:#27500A}
-.note-amber{background:#FAEEDA;color:#633806}
-.note-blue{background:#E6F1FB;color:#0C447C}
-.note-red{background:#FCEBEB;color:#791F1F}
-
-/* サブセクションラベル */
-.sub-label{font-size:12px;font-weight:500;color:#888780;margin:.7rem 0 5px;padding-bottom:3px;border-bottom:0.5px solid rgba(0,0,0,0.07)}
-
-/* メトリクスカード */
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-bottom:1rem}
-.mc{background:#F1EFE8;border-radius:8px;padding:.8rem 1rem}
-.mc .ml{font-size:12px;color:#5F5E5A;margin-bottom:4px}
-.mc .mv{font-size:17px;font-weight:500;color:#1a1a1a}
-.mc.blue .mv{color:#185FA5}
-.mc.amber .mv{color:#BA7517}
-.mc.red .mv{color:#A32D2D}
-.mc.green .mv{color:#3B6D11}
-
-/* 明細行 */
-.br{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:13px;gap:8px}
-.br:last-child{border-bottom:none}
-.br .bl{color:#5F5E5A}
-.br .bv{font-weight:500;color:#1a1a1a;white-space:nowrap}
-.br.ind .bl{padding-left:12px;color:#888780;font-size:12px}
-.br.ind .bv{font-size:12px}
-.br.tot{border-top:1.5px solid rgba(0,0,0,0.2);margin-top:6px;padding-top:8px;font-weight:500}
-.br.tot .bl{color:#1a1a1a;font-size:14px}
-.br.tot .bv{font-size:14px}
-
-/* ステータスバー */
-.sbar-wrap{margin:.75rem 0}
-.sbar-lbl{font-size:12px;color:#5F5E5A;margin-bottom:5px}
-.sbar{height:28px;border-radius:8px;background:#F1EFE8;position:relative;overflow:hidden}
-.sbar-fill{height:100%;border-radius:8px;transition:width .4s}
-.sbar-txt{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;height:100%}
-.notice{font-size:13px;border-radius:8px;padding:10px 14px;line-height:1.65;margin-top:6px}
-.notice.ok{background:#EAF3DE;color:#27500A}
-.notice.ng{background:#FCEBEB;color:#A32D2D}
-
-/* チャート */
-.chart-wrap{position:relative;width:100%;height:280px;margin-top:.75rem}
-.legend{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
-.legend span{display:flex;align-items:center;gap:4px;font-size:12px;color:#5F5E5A}
-
-/* 生徒費用パネル */
-.ps-cat{font-size:12px;font-weight:500;color:#5F5E5A;letter-spacing:.04em;text-transform:uppercase;margin:.7rem 0 4px;padding-bottom:3px;border-bottom:0.5px solid rgba(0,0,0,0.08)}
-.ps-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05)}
-.ps-row:last-child{border-bottom:none}
-.ps-row .pl{color:#5F5E5A}.ps-row .pv{font-weight:500;color:#1a1a1a;white-space:nowrap}
-.ps-row.sub .pl{padding-left:10px;color:#888780;font-size:12px}.ps-row.sub .pv{font-size:12px}
-.ps-total{display:flex;justify-content:space-between;padding:9px 0;border-top:1.5px solid rgba(0,0,0,0.2);margin-top:6px;font-weight:500;font-size:14px}
-.margin-box{background:#EAF3DE;border-radius:8px;padding:10px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center}
-.margin-box .ml2{font-size:13px;color:#27500A}
-.margin-box .mv2{font-size:18px;font-weight:500;color:#3B6D11}
-
-/* 洗浄タブ バッジ */
-.badge-new{display:inline-block;font-size:10px;font-weight:500;background:#FAEEDA;color:#633806;border-radius:4px;padding:2px 7px;margin-left:6px;vertical-align:middle}
-.badge-oct{display:inline-block;font-size:10px;font-weight:500;background:#EAF3DE;color:#27500A;border-radius:4px;padding:2px 7px;margin-left:4px;vertical-align:middle}
-
-/* 洗浄タブ 比較カード */
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:.85rem}
-@media(max-width:600px){.compare-grid{grid-template-columns:1fr}}
-.ccard{background:#fff;border:0.5px solid rgba(0,0,0,0.12);border-radius:12px;padding:1rem 1.25rem}
-.ccard-title{font-size:14px;font-weight:500;margin-bottom:.6rem;color:#1a1a1a}
-.ccard.highlight{border:2px solid #3B6D11}
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#1d2330;--muted:#667085;--line:#e4e7ec;--accent:#1f5fae;--alert:#e03e3e}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:var(--bg);font-size:15px}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:19px;margin:4px 0 2px}
+.sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.regions{display:flex;flex-wrap:wrap;gap:8px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:2}
+.regions button{font:inherit;font-size:14px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.regions button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:4px 0 6px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi.red .v{color:var(--alert)}
+.summary{color:var(--muted);font-size:13px;margin:6px 2px 10px}
+.empty{color:var(--muted);text-align:center;padding:40px 0}
+.store{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.store>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
+.store>summary::-webkit-details-marker{display:none}
+.store>summary::after{content:"›";margin-left:auto;color:var(--muted);font-size:20px;transition:transform .15s}
+.store[open]>summary::after{transform:rotate(90deg)}
+.name{font-weight:600}
+.pref{color:var(--muted);font-size:12px;margin-left:4px;font-weight:400}
+.badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.b{font-size:11px;padding:1px 7px;border-radius:5px;background:#f0f2f5;color:#475467}
+.b.none{background:var(--alert);color:#fff;font-weight:700}
+.b.ten{background:#fce4d6;color:#7a3b12}.b.tan{background:#e2efda;color:#2f5f20}.b.bath{background:#ede4f7;color:#4f2d82}
+.b.soon{background:#fff4d6;color:#8a5a00}
+.detail{border-top:1px solid var(--line);padding:12px 14px 14px}
+dl{display:grid;grid-template-columns:96px 1fr;gap:8px 10px;margin:0 0 12px}
+dt{color:var(--muted);font-size:13px}dd{margin:0}
+.big{font-size:17px;font-weight:700}
+.alert{color:var(--alert);font-weight:700}
+.gm{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:9px 16px;border-radius:8px;font-size:14px}
+.note{font-size:11px;color:var(--muted);line-height:1.7;margin-top:24px}
 </style>
 </head>
 <body>
-<div class="page">
+<div class="wrap">
+  <h1>ホテル店舗情報</h1>
+  <div class="sub">洗浄事業部用｜地方を選ぶと店舗が出ます。店舗を押すと詳細が開きます。（データ時点 2026年11月19日）</div>
 
-<div class="page-header">
-  <h1>エアコンマートアカデミー｜損益分岐点シミュレーター</h1>
-  <p>エアコン取付講習・エアコン洗浄講習（10月〜）の収支シミュレーション</p>
-</div>
+  <div class="kpis" id="kpis"></div>
+  <div class="regions" id="regions"></div>
+  <div class="summary" id="summary"></div>
+  <div id="list"><div class="empty">上の地方ボタンを押してください</div></div>
 
-<div class="tab-row">
-  <button class="tab active" onclick="sw('install',event)">取付講習（現行）</button>
-  <button class="tab" onclick="sw('cleaning',event)">洗浄講習（10月〜）<span class="badge-new">NEW</span></button>
-</div>
-
-<!-- ══════════════════════════════════════
-     取付講習タブ
-══════════════════════════════════════ -->
-<div class="pane active" id="pane-install">
-
-<!-- 受講者数 -->
-<div class="sbox">
-  <div class="sbox-title">会場別受講者数</div>
-  <div class="irow">
-    <div class="ilabel"><label>大阪松原（MAX 8名）</label><div class="hint" id="osaka-note">—</div></div>
-    <div class="ictl">
-      <input type="range" id="osaka-r" min="2" max="8" step="2" value="8" oninput="syncO(this.value)" style="width:110px">
-      <input type="number" id="osaka-n" value="8" min="2" max="8" style="width:58px" onchange="syncON(this.value)">
-      <span class="unit">名</span>
-    </div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>埼玉大宮（MAX 10名）</label><div class="hint" id="saitama-note">—</div></div>
-    <div class="ictl">
-      <input type="range" id="saitama-r" min="2" max="10" step="2" value="10" oninput="syncS(this.value)" style="width:110px">
-      <input type="number" id="saitama-n" value="10" min="2" max="10" style="width:58px" onchange="syncSN(this.value)">
-      <span class="unit">名</span>
-    </div>
-  </div>
-</div>
-
-<!-- 受講料・手数料 + 限界利益 -->
-<div class="two-col">
-<div class="sbox">
-  <div class="sbox-title">受講料・手数料</div>
-  <div class="irow">
-    <div class="ilabel"><label>受講料（税込）</label></div>
-    <div class="ictl"><input type="number" id="price" value="87780" style="width:100px" onchange="calc()"><span class="unit">円</span></div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>遠方者割引</label></div>
-    <div class="ictl"><input type="number" id="discount" value="4000" style="width:80px" onchange="calc()"><span class="unit">円</span></div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>遠方者割合</label></div>
-    <div class="ictl">
-      <input type="range" id="remote-r" min="0" max="100" step="5" value="50" oninput="syncRem(this.value)" style="width:100px">
-      <input type="number" id="remote-pct" value="50" style="width:58px" onchange="syncRemN(this.value)">
-      <span class="unit">%</span>
-    </div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>クレカ決済割合</label><div class="hint">クレカ3.6% / 銀行1.5%</div></div>
-    <div class="ictl"><input type="number" id="card-pct" value="50" style="width:58px" onchange="calc()"><span class="unit">%</span></div>
-  </div>
-</div>
-
-<!-- 1名あたり限界利益 -->
-<div class="sbox">
-  <div class="sbox-title">受講者 1名あたりの限界利益</div>
-  <div class="ps-cat">収入</div>
-  <div class="ps-row"><span class="pl">受講料（税込）</span><span class="pv" id="li-price">—</span></div>
-  <div class="ps-row sub"><span class="pl">遠方者割引（平均）</span><span class="pv" id="li-disc">—</span></div>
-  <div class="ps-row sub"><span class="pl">決済手数料（平均）</span><span class="pv" id="li-fee">—</span></div>
-  <div class="ps-row"><span class="pl" style="font-weight:500;color:#1a1a1a">実質収入 / 1名</span><span class="pv" id="li-rev" style="color:#185FA5">—</span></div>
-  <div class="ps-cat" style="margin-top:.6rem">変動費</div>
-  <div class="ps-row sub"><span class="pl">材料費（ペア・VVF・IV等）</span><span class="pv" id="li-mat">—</span></div>
-  <div class="ps-row sub"><span class="pl">テキスト・印刷・ノベルティ</span><span class="pv">1,250円</span></div>
-  <div class="ps-row sub"><span class="pl">飲食・手袋</span><span class="pv">1,100円</span></div>
-  <div class="ps-row"><span class="pl" style="font-weight:500;color:#1a1a1a">変動費合計 / 1名</span><span class="pv" id="li-var" style="color:#BA7517">—</span></div>
-  <div class="margin-box" style="margin-top:10px">
-    <span class="ml2">限界利益（貢献利益）/ 1名</span>
-    <span class="mv2" id="li-margin">—</span>
-  </div>
-</div>
-</div>
-
-<!-- 固定費 -->
-<div class="sbox">
-  <div class="sbox-title">固定費（月額）</div>
-
-  <div class="sub-label">人件費</div>
-  <div class="irow">
-    <div class="ilabel"><label>人件費合計</label><div class="hint">立ち上げ時：講師20万 + 補助スタッフ10万 + 宮良40万 = 700,000円/月</div></div>
-    <div class="ictl"><input type="number" id="labor" value="700000" style="width:100px" onchange="calc()"><span class="unit">円/月</span></div>
-  </div>
-
-  <div class="sub-label">出張費</div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>出張交通費（往復）</label>
-      <div class="hint">河内松原→新大阪(約400円)+のぞみ指定席(14,720円)+東北新幹線自由席(1,660円)=片道16,780円 × 往復 ≒ 33,560円/名</div>
-    </div>
-    <div class="ictl">
-      <input type="number" id="trans-unit" value="33560" style="width:90px" onchange="calc()">
-      <span class="unit">円/名</span>
-      <span style="font-size:13px;color:#5F5E5A">×</span>
-      <input type="range" id="trans-n-r" min="1" max="4" step="1" value="3" oninput="syncTN(this.value)" style="width:80px">
-      <input type="number" id="trans-n" value="3" min="1" max="4" style="width:48px" onchange="syncTNN(this.value)">
-      <span class="unit">名</span>
-      <span style="font-size:13px;font-weight:500;color:#1a1a1a" id="disp-trans">—</span>
-    </div>
-  </div>
-  <div class="note note-blue">埼玉在住のサブ講師が確保できれば対象者が減り大幅削減可。最終的には大阪→埼玉の出張自体をゼロにできます。</div>
-
-  <div class="sub-label">宿泊費</div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>宿泊費（月額合計）</label>
-      <div class="hint">現在想定：8,000円×2泊×3名=48,000円。Airbnb自社物件運用後は実質0円。繁忙期・物価高を考慮しMAX 60,000円で設定。</div>
-    </div>
-    <div class="ictl">
-      <input type="range" id="hotel-r" min="0" max="60000" step="1000" value="48000" oninput="syncHotel(this.value)" style="width:110px">
-      <input type="number" id="hotel" value="48000" style="width:85px" onchange="syncHotelN(this.value)">
-      <span class="unit">円/月</span>
-    </div>
-  </div>
-  <div class="note note-green">Airbnb運営が軌道に乗ると宿泊費は0円。月48,000円がそのままコスト削減になります。</div>
-
-  <div class="sub-label">会場費</div>
-  <div class="irow">
-    <div class="ilabel"><label>大阪松原</label><div class="hint">自社ビルのため0円</div></div>
-    <div style="font-size:14px;color:#888780;padding-top:4px">0円/月</div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>埼玉大宮</label><div class="hint">家賃・電気代含む（暫定）</div></div>
-    <div class="ictl"><input type="number" id="venue" value="250000" style="width:100px" onchange="calc()"><span class="unit">円/月</span></div>
-  </div>
-
-  <div class="sub-label">研修機材・通信</div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>Wi-Fi</label>
-      <div class="hint">各会場のネット回線費用</div>
-    </div>
-    <div class="ictl"><input type="number" id="wifi" value="5000" style="width:90px" onchange="calc()"><span class="unit">円/月</span></div>
-  </div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>研修機材</label>
-      <div class="hint">実習用中古エアコン本体・据付板・実習台などの月額換算。22,000円/台 − スクラップ回収2,000円 = 実質20,000円 ÷ 3ヶ月（入替サイクル）× 台数。スプリングベンダー導入により入替サイクル延長の可能性あり。</div>
-    </div>
-    <div class="ictl"><input type="number" id="equip" value="13333" style="width:90px" onchange="calc()"><span class="unit">円/月</span></div>
-  </div>
-
-  <div class="sub-label">広告費</div>
-  <div class="irow">
-    <div class="ilabel"><label>広告費</label></div>
-    <div class="ictl">
-      <input type="range" id="ads-r" min="0" max="200000" step="5000" value="50000" oninput="syncAds(this.value)" style="width:110px">
-      <input type="number" id="ads" value="50000" style="width:85px" onchange="syncAdsN(this.value)">
-      <span class="unit">円/月</span>
-    </div>
-  </div>
-  <div class="note note-amber">現状：Google・Yahoo!リスティング広告に月5万円。YouTubeでの動画発信が定着すると段階的に削減可能（目標：月0〜1万円）。安定まで約1年は現行維持が現実的。</div>
-
-  <div class="sub-label">動画プラットフォーム</div>
-  <div class="irow">
-    <div class="ilabel"><label>プラットフォーム費</label><div class="hint">Podia $39≒5,600円 / Thinkific $49≒7,000円 / Uscreen $149≒22,000円</div></div>
-    <div class="ictl"><input type="number" id="platform" value="5600" style="width:90px" onchange="calc()"><span class="unit">円/月</span></div>
-  </div>
-
-  <div class="sub-label">その他</div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>産業廃棄物処理費 + 予備費</label>
-      <div class="hint">産廃：月5,000円固定（廃配管・廃材の処分費）｜予備費：月40,000円確保（突発的な資材補充・機器故障などに備えた予備枠）</div>
-    </div>
-    <div class="ictl"><input type="number" id="misc" value="45000" style="width:90px" onchange="calc()"><span class="unit">円/月</span></div>
-  </div>
-</div>
-
-<!-- 追加収入 -->
-<div class="sbox">
-  <div class="sbox-title">追加収入（新収益源）</div>
-
-  <div class="sub-label">動画サブスク</div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>卒業生限定プラン（980円）</label>
-      <div class="hint">10月ローンチ時：卒業生50名への一斉案内想定</div>
-    </div>
-    <div class="ictl">
-      <input type="range" id="sub-grad-r" min="0" max="100" step="5" value="50" oninput="syncSubG(this.value)" style="width:100px">
-      <input type="number" id="sub-grad" value="50" style="width:60px" onchange="syncSubGN(this.value)">
-      <span class="unit">名 × 980円</span>
-      <span style="font-size:13px;font-weight:500;color:#3B6D11" id="disp-sub-grad">—</span>
-    </div>
-  </div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>ベーシックプラン（2,980円）</label>
-      <div class="hint">一般向け。取付動画4種×各30分</div>
-    </div>
-    <div class="ictl">
-      <input type="range" id="sub-basic-r" min="0" max="200" step="5" value="0" oninput="syncSubB(this.value)" style="width:100px">
-      <input type="number" id="sub-basic" value="0" style="width:60px" onchange="syncSubBN(this.value)">
-      <span class="unit">名 × 2,980円</span>
-      <span style="font-size:13px;font-weight:500;color:#3B6D11" id="disp-sub-basic">—</span>
-    </div>
-  </div>
-  <div class="irow">
-    <div class="ilabel">
-      <label>ビジネスプラン（4,980円）</label>
-      <div class="hint">プロ向け追加工事動画（化粧カバー・公団スリーブ等）</div>
-    </div>
-    <div class="ictl">
-      <input type="range" id="sub-biz-r" min="0" max="200" step="5" value="0" oninput="syncSubBiz(this.value)" style="width:100px">
-      <input type="number" id="sub-biz" value="0" style="width:60px" onchange="syncSubBizN(this.value)">
-      <span class="unit">名 × 4,980円</span>
-      <span style="font-size:13px;font-weight:500;color:#3B6D11" id="disp-sub-biz">—</span>
-    </div>
-  </div>
-
-  <div class="sub-label">その他収益</div>
-  <div class="irow">
-    <div class="ilabel"><label>Airbnb収益（月間純利益）</label><div class="hint">家賃・清掃費等差し引き後。講師3名の宿泊費（約48,000円）をペイできればOK。</div></div>
-    <div class="ictl">
-      <input type="range" id="airbnb-r" min="0" max="300000" step="5000" value="0" oninput="syncAirbnb(this.value)" style="width:100px">
-      <input type="number" id="airbnb" value="0" style="width:85px" onchange="syncAirbnbN(this.value)">
-      <span class="unit">円/月</span>
-    </div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>人材媒体掲載料</label><div class="hint">親方掲載数 × 月額</div></div>
-    <div class="ictl">
-      <input type="number" id="media-n" value="0" style="width:58px" onchange="calc()">
-      <span class="unit">社 ×</span>
-      <input type="number" id="media-p" value="4000" style="width:75px" onchange="calc()">
-      <span class="unit">円/月</span>
-    </div>
-  </div>
-</div>
-
-<!-- メトリクス -->
-<div class="metrics">
-  <div class="mc blue"><div class="ml">月間固定費合計</div><div class="mv" id="m-fixed">—</div></div>
-  <div class="mc amber"><div class="ml">変動費 / 1名</div><div class="mv" id="m-var">—</div></div>
-  <div class="mc green"><div class="ml">追加収入（月）</div><div class="mv" id="m-extra">—</div></div>
-  <div class="mc"><div class="ml">限界利益 / 1名</div><div class="mv" id="m-cont">—</div></div>
-</div>
-
-<!-- 損益分岐点 + 生徒費用 2カラム -->
-<div class="two-col">
-
-<!-- 損益分岐点 -->
-<div>
-<div class="sbox">
-  <div class="sbox-title">損益分岐点</div>
-  <div class="br"><span class="bl">月間固定費合計</span><span class="bv" id="bd-fixed">—</span></div>
-  <div class="br ind"><span class="bl">うち 出張交通費</span><span class="bv" id="bd-trans">—</span></div>
-  <div class="br ind"><span class="bl">うち 宿泊費</span><span class="bv" id="bd-hotel">—</span></div>
-  <div class="br"><span class="bl">月間追加収入（サブスク等）</span><span class="bv" id="bd-extra">—</span></div>
-  <div class="br"><span class="bl">実質固定費負担</span><span class="bv" id="bd-netfixed">—</span></div>
-  <div class="br"><span class="bl">限界利益 / 1名</span><span class="bv" id="bd-cont">—</span></div>
-  <div class="br tot"><span class="bl">損益分岐点（月間最低受講者数）</span><span class="bv" id="bd-bep">—</span></div>
-  <div class="br ind"><span class="bl">大阪 最低必要人数</span><span class="bv" id="bd-o-min">—</span></div>
-  <div class="br ind"><span class="bl">埼玉 最低必要人数</span><span class="bv" id="bd-s-min">—</span></div>
-  <div class="br ind"><span class="bl">大阪 充填率</span><span class="bv" id="bd-o-pct">—</span></div>
-  <div class="br ind"><span class="bl">埼玉 充填率</span><span class="bv" id="bd-s-pct">—</span></div>
-  <div class="sbar-wrap">
-    <div class="sbar-lbl" id="sbar-lbl">—</div>
-    <div class="sbar"><div class="sbar-fill" id="sbar-fill"></div><div class="sbar-txt" id="sbar-txt">—</div></div>
-  </div>
-  <div class="notice" id="bep-notice">—</div>
-</div>
-<div class="sbox">
-  <div class="sbox-title">月間損益</div>
-  <div class="br"><span class="bl">講習売上</span><span class="bv" id="bd-rev">—</span></div>
-  <div class="br"><span class="bl">追加収入合計</span><span class="bv" id="bd-extra2">—</span></div>
-  <div class="br"><span class="bl">月間変動費</span><span class="bv" id="bd-varT">—</span></div>
-  <div class="br"><span class="bl">月間固定費</span><span class="bv" id="bd-fixedT">—</span></div>
-  <div class="br tot"><span class="bl">月間損益</span><span class="bv" id="bd-profit">—</span></div>
-  <div class="br"><span class="bl">年間損益（×12）</span><span class="bv" id="bd-annual">—</span></div>
-</div>
-</div>
-
-<!-- 生徒費用/1名 -->
-<div>
-<div class="sbox">
-  <div class="sbox-title">生徒費用 / 1名あたり（変動費明細）</div>
-
-  <div class="ps-cat">材料費（2名1ペア・使いまわし差引後）</div>
-  <div class="ps-row sub"><span class="pl">ペアコイル 2分3分（実費5m/組 ÷ 2名）</span><span class="pv" id="ps-pair">—</span></div>
-  <div class="ps-row sub"><span class="pl">VVF 1.6mm 3芯（実費6m/組 ÷ 2名）</span><span class="pv" id="ps-vvf">—</span></div>
-  <div class="ps-row sub"><span class="pl">IV線 1.6mm（60円 × 1m）</span><span class="pv">60円</span></div>
-  <div class="ps-row sub"><span class="pl">配管テープ ネオピタ（310円）</span><span class="pv">310円</span></div>
-  <div class="ps-row sub"><span class="pl">ビニールテープ（150円）</span><span class="pv">150円</span></div>
-  <div class="ps-row sub"><span class="pl">エアコン用パテ（200円）</span><span class="pv">200円</span></div>
-  <div class="ps-row sub"><span class="pl">ボードアンカー（40円×10本）</span><span class="pv">400円</span></div>
-  <div class="ps-row"><span class="pl" style="font-weight:500;color:#1a1a1a">材料費 小計</span><span class="pv" id="ps-mat">—</span></div>
-
-  <div class="ps-cat">テキスト・印刷物</div>
-  <div class="ps-row sub"><span class="pl">教科書（1,000円）</span><span class="pv">1,000円</span></div>
-  <div class="ps-row sub"><span class="pl">修了証（100円）</span><span class="pv">100円</span></div>
-  <div class="ps-row sub"><span class="pl">ノベルティ 缶バッジ+シール（150円）</span><span class="pv">150円</span></div>
-  <div class="ps-row"><span class="pl" style="font-weight:500;color:#1a1a1a">小計</span><span class="pv">1,250円</span></div>
-
-  <div class="ps-cat">飲食・安全</div>
-  <div class="ps-row sub"><span class="pl">昼食・飲み物（1,000円）</span><span class="pv">1,000円</span></div>
-  <div class="ps-row sub"><span class="pl">手袋（100円）</span><span class="pv">100円</span></div>
-  <div class="ps-row"><span class="pl" style="font-weight:500;color:#1a1a1a">小計</span><span class="pv">1,100円</span></div>
-
-  <div class="ps-cat">決済・割引コスト（平均按分）</div>
-  <div class="ps-row sub"><span class="pl">遠方者割引</span><span class="pv" id="ps-disc">—</span></div>
-  <div class="ps-row sub"><span class="pl">決済手数料</span><span class="pv" id="ps-fee">—</span></div>
-  <div class="ps-row"><span class="pl" style="font-weight:500;color:#1a1a1a">小計</span><span class="pv" id="ps-pay">—</span></div>
-
-  <div class="ps-total">
-    <span style="color:#1a1a1a">変動費合計 / 1名</span>
-    <span style="color:#A32D2D" id="ps-total-v">—</span>
-  </div>
-
-  <div class="ps-cat" style="margin-top:.75rem">収支サマリー</div>
-  <div class="ps-row"><span class="pl">実質収入 / 1名</span><span class="pv" id="ps-rev" style="color:#185FA5">—</span></div>
-  <div class="ps-row"><span class="pl">変動費 / 1名</span><span class="pv" id="ps-var2" style="color:#BA7517">—</span></div>
-  <div class="margin-box">
-    <span class="ml2">限界利益 / 1名</span>
-    <span class="mv2" id="ps-margin">—</span>
-  </div>
-
-  <div class="ps-cat" style="margin-top:.75rem">ペアコイル・VVF 補足</div>
-  <div class="ps-row sub"><span class="pl">ペアコイル 使用量 / 組</span><span class="pv">12m</span></div>
-  <div class="ps-row sub"><span class="pl">うち次回流用（3・4回目）</span><span class="pv">7m → 実費5m/組</span></div>
-  <div class="ps-row sub"><span class="pl">VVF 使用量 / 組</span><span class="pv">16m</span></div>
-  <div class="ps-row sub"><span class="pl">うち次回流用（3・4回目）</span><span class="pv">8m → 実費6m/組</span></div>
-
-  <div class="ps-cat" style="margin-top:.75rem">単価調整</div>
-  <div class="irow" style="margin-bottom:5px">
-    <div style="flex:1;font-size:13px;color:#1a1a1a">ペアコイル単価（円/m）</div>
-    <input type="number" id="pair-unit" value="320" style="width:75px" onchange="calc()">
-    <span class="unit">円/m</span>
-  </div>
-</div>
-</div>
-
-</div><!-- end two-col -->
-
-<div class="chart-wrap">
-  <canvas id="bepChart" role="img" aria-label="受講者数と損益の関係グラフ">受講者数と損益の関係</canvas>
-</div>
-<div class="legend" id="chart-legend"></div>
-
-</div><!-- end pane-install -->
-
-<!-- ══════════════════════════════════════
-     洗浄講習タブ
-══════════════════════════════════════ -->
-<div class="pane" id="pane-cleaning">
-
-<div class="sbox">
-  <div class="sbox-title">エアコン洗浄講習 — 10月〜追加<span class="badge-oct">2025年10月〜</span></div>
-  <p style="font-size:13px;color:#5F5E5A;line-height:1.75;margin-bottom:.75rem">
-    エアコン洗浄講習をサブ講師・宮良が兼任で運営します。これにより<strong style="font-weight:500">取付講習と洗浄講習で固定費を分担</strong>でき、1講習あたりの固定費負担が実質半分になります。<br>
-    会場・人件費・Wi-Fi・研修機材・出張費など多くの固定費を2講習で割り算できるため、収益性が大幅に改善します。
+  <p class="note">
+    温泉・大浴場：スーパーホテル公式サイトの店舗一覧の設備表示。客室数・駐車場：楽天トラベル各ホテルの基本情報。<br>
+    駐車料金・台数は改定されている場合があります。訪問前にホテルへご確認ください。
   </p>
 </div>
 
-<div class="compare-grid">
-  <div class="ccard">
-    <div class="ccard-title">取付講習のみ（現状）</div>
-    <div class="br"><span class="bl">月間固定費</span><span class="bv" id="cl-fixed-before">—</span></div>
-    <div class="br"><span class="bl">1講習あたり固定費</span><span class="bv" id="cl-per-before">—</span></div>
-    <div class="br"><span class="bl">月2講習（大阪+埼玉）</span><span class="bv">2回</span></div>
-  </div>
-  <div class="ccard highlight">
-    <div class="ccard-title" style="color:#3B6D11">取付 + 洗浄（10月以降）<span class="badge-oct">推奨</span></div>
-    <div class="br"><span class="bl">月間固定費（半分負担）</span><span class="bv" id="cl-fixed-after">—</span></div>
-    <div class="br"><span class="bl">1講習あたり固定費</span><span class="bv" id="cl-per-after">—</span></div>
-    <div class="br"><span class="bl">月4講習（取付2回+洗浄2回）</span><span class="bv">4回</span></div>
-    <div class="br" style="margin-top:4px;padding-top:6px;border-top:0.5px solid rgba(0,0,0,0.1)"><span class="bl" style="color:#3B6D11;font-weight:500">固定費削減効果</span><span class="bv" id="cl-saving" style="color:#3B6D11">—</span></div>
-  </div>
-</div>
-
-<!-- 洗浄講習の設定 -->
-<div class="sbox">
-  <div class="sbox-title">洗浄講習の設定</div>
-  <div class="irow">
-    <div class="ilabel"><label>洗浄講習 人件費（半分負担）</label><div class="hint">取付講習と兼任のため人件費を折半。10月以降は取付の人件費負担が半減する想定。</div></div>
-    <div class="ictl"><input type="number" id="cl-labor" value="350000" style="width:100px" onchange="calcCleaning()"><span class="unit">円/月</span></div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>洗浄講習 受講料</label><div class="hint">取付と異なる受講料設定が可能</div></div>
-    <div class="ictl"><input type="number" id="cl-price" value="87780" style="width:100px" onchange="calcCleaning()"><span class="unit">円</span></div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>洗浄講習 受講者数（月計）</label><div class="hint">大阪+埼玉の合計</div></div>
-    <div class="ictl">
-      <input type="range" id="cl-n-r" min="2" max="18" step="2" value="10" oninput="syncCLN(this.value)" style="width:110px">
-      <input type="number" id="cl-n" value="10" min="2" max="18" style="width:60px" onchange="syncCLNN(this.value)">
-      <span class="unit">名</span>
-    </div>
-  </div>
-</div>
-
-<!-- 洗浄サブスク -->
-<div class="sbox">
-  <div class="sbox-title">洗浄動画サブスク収益</div>
-  <div class="irow">
-    <div class="ilabel"><label>ベーシック分解動画（2,980円）</label></div>
-    <div class="ictl">
-      <input type="range" id="cls-basic-r" min="0" max="200" step="5" value="0" oninput="syncCLSB(this.value)" style="width:100px">
-      <input type="number" id="cls-basic" value="0" style="width:60px" onchange="syncCLSBN(this.value)">
-      <span class="unit">名 × 2,980円</span>
-      <span style="font-size:13px;font-weight:500;color:#3B6D11" id="disp-cls-basic">—</span>
-    </div>
-  </div>
-  <div class="irow">
-    <div class="ilabel"><label>完全分解動画（4,980円）</label></div>
-    <div class="ictl">
-      <input type="range" id="cls-full-r" min="0" max="200" step="5" value="0" oninput="syncCLSF(this.value)" style="width:100px">
-      <input type="number" id="cls-full" value="0" style="width:60px" onchange="syncCLSFN(this.value)">
-      <span class="unit">名 × 4,980円</span>
-      <span style="font-size:13px;font-weight:500;color:#3B6D11" id="disp-cls-full">—</span>
-    </div>
-  </div>
-  <div class="note note-green" style="margin-top:6px">洗浄動画はエアコン取付より解約率が低い高粘着コンテンツ。機種ごとの分解方法が異なるため「新モデル対応」更新で継続率が維持できます。</div>
-</div>
-
-<!-- 洗浄 メトリクス -->
-<div class="metrics">
-  <div class="mc blue"><div class="ml">取付 固定費負担（半分）</div><div class="mv" id="cl-m-fixed">—</div></div>
-  <div class="mc green"><div class="ml">洗浄 追加収入（月）</div><div class="mv" id="cl-m-extra">—</div></div>
-  <div class="mc amber"><div class="ml">洗浄 受講料収入</div><div class="mv" id="cl-m-rev">—</div></div>
-  <div class="mc green"><div class="ml">洗浄 月間損益貢献</div><div class="mv" id="cl-m-profit">—</div></div>
-</div>
-
-<!-- 効果比較 -->
-<div class="sbox">
-  <div class="sbox-title">取付+洗浄 合算 月間損益（10月以降）</div>
-  <div class="br"><span class="bl">取付講習 月間損益（現行設定より）</span><span class="bv" id="cl-install-profit">—</span></div>
-  <div class="br"><span class="bl">洗浄講習 月間損益貢献</span><span class="bv" id="cl-clean-profit">—</span></div>
-  <div class="br"><span class="bl">固定費の削減効果（取付が半分負担になる分）</span><span class="bv" id="cl-fixed-benefit">—</span></div>
-  <div class="br tot"><span class="bl">合算 月間損益（取付+洗浄）</span><span class="bv" id="cl-total-profit">—</span></div>
-  <div class="br"><span class="bl">合算 年間損益（×12）</span><span class="bv" id="cl-total-annual">—</span></div>
-</div>
-
-</div><!-- end pane-cleaning -->
-
-</div><!-- end page -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const g=id=>parseFloat(document.getElementById(id).value)||0;
-const fmt=n=>Math.round(n).toLocaleString('ja-JP')+'円';
-const fmtS=n=>(n>=0?'+':'')+Math.round(n).toLocaleString('ja-JP')+'円';
-const el=id=>document.getElementById(id);
+const DATA = [{"n":"旭川","p":"北海道","r":"北海道","ew":"東日本","rm":91,"on":"天然温泉","pk":"自社・有料","pc":61,"pf":600,"pn":"先着順。満車時は近隣コインP","st":"営業中","lat":43.7632,"lng":142.364,"ad":"北海道旭川市宮下通11-767-3","j":false},{"n":"石狩","p":"北海道","r":"北海道","ew":"東日本","rm":106,"on":"天然温泉","pk":"自社・無料","pc":112,"pf":0,"pn":"敷地内平面・予約不要。大型車は1泊2,000円","st":"営業中","lat":43.185,"lng":141.3131,"ad":"北海道石狩市新港南2-731-2","j":false},{"n":"札幌・すすきの","p":"北海道","r":"北海道","ew":"東日本","rm":164,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":1800,"pn":"完全電話予約制。立体（車高制限あり）","st":"営業中","lat":43.0539,"lng":141.3562,"ad":"北海道札幌市中央区南6条西2-8-1","j":false},{"n":"札幌・北5条通","p":"北海道","r":"北海道","ew":"東日本","rm":107,"on":"天然温泉","pk":"自社・有料","pc":51,"pf":500,"pn":"先着順。2027年1月から800円","st":"営業中","lat":43.0644,"lng":141.3374,"ad":"北海道札幌市中央区北4条西12-1-4","j":false},{"n":"函館","p":"北海道","r":"北海道","ew":"東日本","rm":108,"on":"天然温泉","pk":"自社・有料","pc":42,"pf":500,"pn":"当日先着順","st":"営業中","lat":41.7705,"lng":140.7333,"ad":"北海道函館市松風町1-10","j":false},{"n":"釧路・黒金","p":"北海道","r":"北海道","ew":"東日本","rm":101,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":500,"pn":"大平面駐車場。大型車は要連絡","st":"営業中","lat":42.9875,"lng":144.3821,"ad":"北海道釧路市黒金町11-1-1","j":false},{"n":"釧路駅前","p":"北海道","r":"北海道","ew":"東日本","rm":84,"on":"天然温泉","pk":"自社・有料","pc":52,"pf":500,"pn":"予約先着順。2027年1月から600円","st":"営業中","lat":42.9894,"lng":144.3858,"ad":"北海道釧路市末広町14-1-2","j":false},{"n":"北見","p":"北海道","r":"北海道","ew":"東日本","rm":83,"on":"なし","pk":"自社・有料","pc":null,"pf":700,"pn":"予約順。満車時は提携P 800円","st":"営業中","lat":43.8054,"lng":143.8928,"ad":"北海道北見市北四条西2-11-1","j":false},{"n":"Premier帯広駅前","p":"北海道","r":"北海道","ew":"東日本","rm":103,"on":"天然温泉","pk":"提携","pc":246,"pf":600,"pn":"提携立体駐車場・先着順（全高2.0m以下）","st":"営業中","lat":42.92,"lng":143.2003,"ad":"北海道帯広市西3条南10-37","j":false},{"n":"Premier千歳天然温泉","p":"北海道","r":"北海道","ew":"東日本","rm":212,"on":"天然温泉","pk":"自社・無料","pc":142,"pf":0,"pn":"敷地内130台＋敷地外12台。中型車以上は事前連絡","st":"営業中","lat":42.8338,"lng":141.6292,"ad":"北海道千歳市北斗4-13-22","j":false},{"n":"青森","p":"青森県","r":"東北","ew":"東日本","rm":89,"on":"なし","pk":"自社・無料","pc":335,"pf":0,"pn":"屋根付（車高2.1mまで）","st":"営業中","lat":40.8236,"lng":140.7505,"ad":"青森県青森市橋本1-3-14","j":false},{"n":"十和田","p":"青森県","r":"東北","ew":"東日本","rm":73,"on":"天然温泉","pk":"自社・無料","pc":null,"pf":0,"pn":"予約不要。満車時は提携P（無料）","st":"営業中","lat":40.6138,"lng":141.214,"ad":"青森県十和田市稲生町17-43","j":false},{"n":"弘前","p":"青森県","r":"東北","ew":"東日本","rm":100,"on":"天然温泉","pk":"自社・有料","pc":52,"pf":500,"pn":"徒歩3分・先着順","st":"営業中","lat":40.5978,"lng":140.4758,"ad":"青森県弘前市土手町148","j":false},{"n":"八戸長横町","p":"青森県","r":"東北","ew":"東日本","rm":92,"on":"なし","pk":"自社・有料","pc":null,"pf":600,"pn":"ホテル隣接。バス・トラックは要予約","st":"営業中","lat":40.508,"lng":141.4932,"ad":"青森県八戸市長横町12-2","j":false},{"n":"八戸天然温泉","p":"青森県","r":"東北","ew":"東日本","rm":95,"on":"天然温泉","pk":"自社・無料","pc":54,"pf":0,"pn":"先着順。大型車は有料・要予約","st":"営業中","lat":40.5098,"lng":141.4952,"ad":"青森県八戸市十一日町58-7","j":false},{"n":"盛岡","p":"岩手県","r":"東北","ew":"東日本","rm":96,"on":"天然温泉","pk":"自社・有料","pc":65,"pf":800,"pn":"先着順","st":"営業中","lat":39.707,"lng":141.134,"ad":"岩手県盛岡市盛岡駅前北通10-38","j":false},{"n":"矢巾駅東口","p":"岩手県","r":"東北","ew":"東日本","rm":93,"on":"天然温泉","pk":"自社・無料","pc":61,"pf":0,"pn":"敷地内・隣地平面","st":"営業中","lat":39.615,"lng":141.1317,"ad":"岩手県紫波郡矢巾町又兵工新田第7地割188-1","j":false},{"n":"岩手北上駅東口天然温泉","p":"岩手県","r":"東北","ew":"東日本","rm":174,"on":"天然温泉","pk":"自社・無料","pc":135,"pf":0,"pn":"","st":"営業中","lat":39.2841,"lng":141.1242,"ad":"岩手県北上市川岸2-1-6","j":false},{"n":"仙台駅東口天然温泉","p":"宮城県","r":"東北","ew":"東日本","rm":114,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"近隣コインP","st":"営業中","lat":38.2625,"lng":140.8856,"ad":"宮城県仙台市宮城野区名掛丁203-12","j":false},{"n":"仙台・広瀬通り","p":"宮城県","r":"東北","ew":"東日本","rm":173,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":38.2627,"lng":140.8744,"ad":"宮城県仙台市青葉区中央2-9-23","j":false},{"n":"Premier仙台国分町天然温泉","p":"宮城県","r":"東北","ew":"東日本","rm":184,"on":"天然温泉","pk":"提携","pc":null,"pf":1200,"pn":"提携P 1,200円〜1,300円","st":"営業中","lat":38.2642,"lng":140.8674,"ad":"宮城県仙台市青葉区国分町2-13-5","j":false},{"n":"美田園・仙台エアポート","p":"宮城県","r":"東北","ew":"東日本","rm":109,"on":"天然温泉","pk":"自社・無料","pc":89,"pf":0,"pn":"敷地内69台＋第2駐車場20台","st":"営業中","lat":38.1603,"lng":140.9187,"ad":"宮城県名取市美田園2-1-11","j":false},{"n":"仙台空港インター","p":"宮城県","r":"東北","ew":"東日本","rm":105,"on":"天然温泉","pk":"自社・無料","pc":115,"pf":0,"pn":"平面・先着順","st":"営業中","lat":38.1487,"lng":140.8834,"ad":"宮城県名取市植松字田野部91-1","j":false},{"n":"山形駅西口天然温泉","p":"山形県","r":"東北","ew":"東日本","rm":108,"on":"天然温泉","pk":"自社・有料","pc":72,"pf":600,"pn":"大型車1,000円（要予約）","st":"営業中","lat":38.2466,"lng":140.3224,"ad":"山形県山形市双葉町1-10-18","j":false},{"n":"山形・さくらんぼ東根駅前","p":"山形県","r":"東北","ew":"東日本","rm":104,"on":"天然温泉","pk":"自社・無料","pc":80,"pf":0,"pn":"敷地内30台＋第二50台・先着順（料金記載なし）","st":"営業中","lat":38.4282,"lng":140.3853,"ad":"山形県東根市さくらんぼ駅前2-17-21","j":false},{"n":"山形・鶴岡","p":"山形県","r":"東北","ew":"東日本","rm":112,"on":"天然温泉","pk":"自社・無料","pc":77,"pf":0,"pn":"平面・先着順","st":"営業中","lat":38.7413,"lng":139.8318,"ad":"山形県鶴岡市宝田1-8-51","j":false},{"n":"福島・いわき","p":"福島県","r":"東北","ew":"東日本","rm":101,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":250,"pn":"平面。3泊目から1日150円","st":"営業中","lat":37.0612,"lng":140.9348,"ad":"福島県いわき市平中神谷字苅萱38","j":false},{"n":"水戸","p":"茨城県","r":"関東","ew":"東日本","rm":106,"on":"天然温泉","pk":"自社・有料","pc":61,"pf":700,"pn":"平面・先着順","st":"営業中","lat":36.3798,"lng":140.4601,"ad":"茨城県水戸市泉町3-7-24","j":false},{"n":"鹿嶋","p":"茨城県","r":"関東","ew":"東日本","rm":99,"on":"天然温泉","pk":"自社・無料","pc":90,"pf":0,"pn":"大型車可","st":"営業中","lat":35.9241,"lng":140.6506,"ad":"茨城県神栖市居切1270-11","j":false},{"n":"宇都宮","p":"栃木県","r":"関東","ew":"東日本","rm":94,"on":"天然温泉","pk":"自社・有料","pc":45,"pf":800,"pn":"第1〜第3駐車場・先着順","st":"営業中","lat":36.5604,"lng":139.9041,"ad":"栃木県宇都宮市元今泉4-19-20","j":false},{"n":"栃木・上三川天然温泉","p":"栃木県","r":"関東","ew":"東日本","rm":144,"on":"天然温泉","pk":"自社・無料","pc":118,"pf":0,"pn":"予約不要","st":"営業中","lat":36.4287,"lng":139.9123,"ad":"栃木県河内郡上三川町上三川3221","j":false},{"n":"小山","p":"栃木県","r":"関東","ew":"東日本","rm":87,"on":"天然温泉","pk":"自社・無料","pc":41,"pf":0,"pn":"平面・先着順","st":"営業中","lat":36.3174,"lng":139.8056,"ad":"栃木県小山市城山町3-16-10","j":false},{"n":"佐野藤岡","p":"栃木県","r":"関東","ew":"東日本","rm":105,"on":"天然温泉","pk":"自社・無料","pc":70,"pf":0,"pn":"平面・先着順（トラック不可）","st":"営業中","lat":36.313,"lng":139.5831,"ad":"栃木県佐野市相生町2826","j":false},{"n":"Premierさいたま・大宮駅東口","p":"埼玉県","r":"関東","ew":"東日本","rm":154,"on":"天然温泉","pk":"自社・有料","pc":5,"pf":1800,"pn":"先着順（15時〜翌10時）","st":"営業中","lat":35.9098,"lng":139.625,"ad":"埼玉県さいたま市大宮区宮町4-112-1","j":false},{"n":"さいたま・和光市駅前","p":"埼玉県","r":"関東","ew":"東日本","rm":70,"on":"なし","pk":"自社・有料","pc":11,"pf":1000,"pn":"完全予約制。3ナンバー不可","st":"営業中","lat":35.7875,"lng":139.6107,"ad":"埼玉県和光市本町1-13","j":false},{"n":"埼玉・久喜","p":"埼玉県","r":"関東","ew":"東日本","rm":102,"on":"天然温泉","pk":"自社・無料","pc":47,"pf":0,"pn":"ほかに共用駐車場あり","st":"営業中","lat":36.0695,"lng":139.6753,"ad":"埼玉県久喜市久喜中央4-9-13","j":false},{"n":"埼玉・川越","p":"埼玉県","r":"関東","ew":"東日本","rm":104,"on":"天然温泉","pk":"提携","pc":110,"pf":null,"pn":"敷地内15台＋提携2か所95台。料金はフロント確認","st":"営業中","lat":35.9121,"lng":139.4811,"ad":"埼玉県川越市新富町2-31-5","j":false},{"n":"埼玉・春日部駅前天然温泉","p":"埼玉県","r":"関東","ew":"東日本","rm":105,"on":"天然温泉","pk":"自社・有料","pc":70,"pf":500,"pn":"徒歩3分","st":"営業中","lat":35.9812,"lng":139.7531,"ad":"埼玉県春日部市粕壁1-7-9","j":false},{"n":"埼玉・本庄","p":"埼玉県","r":"関東","ew":"東日本","rm":138,"on":"天然温泉","pk":"自社・無料","pc":109,"pf":0,"pn":"平面。大型車は有料・予約制","st":"営業中","lat":36.245,"lng":139.1776,"ad":"埼玉県本庄市小島6-1","j":false},{"n":"千葉駅前","p":"千葉県","r":"関東","ew":"東日本","rm":145,"on":"天然温泉","pk":"提携","pc":null,"pf":1200,"pn":"提携外P 1日最大1,200〜2,500円","st":"営業中","lat":35.6146,"lng":140.1131,"ad":"千葉県千葉市中央区弁天1-15-10","j":false},{"n":"東西線・市川・妙典駅前","p":"千葉県","r":"関東","ew":"東日本","rm":137,"on":"なし","pk":"提携","pc":50,"pf":1100,"pn":"同ビル地下・予約不可・出し入れ不可","st":"営業中","lat":35.6918,"lng":139.9266,"ad":"千葉県市川市妙典4-4-27","j":false},{"n":"千葉・市原","p":"千葉県","r":"関東","ew":"東日本","rm":98,"on":"天然温泉","pk":"自社・無料","pc":108,"pf":0,"pn":"大型車は第三駐車場","st":"営業中","lat":35.4874,"lng":140.0488,"ad":"千葉県市原市姉崎994-9","j":false},{"n":"新橋・烏森口","p":"東京都","r":"関東","ew":"東日本","rm":74,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.6625,"lng":139.7562,"ad":"東京都港区新橋5-16-4","j":false},{"n":"Premier赤坂","p":"東京都","r":"関東","ew":"東日本","rm":157,"on":"人工炭酸泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.6748,"lng":139.7367,"ad":"東京都港区赤坂3-16-7","j":false},{"n":"東京・芝","p":"東京都","r":"関東","ew":"東日本","rm":151,"on":"人工炭酸泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.65,"lng":139.751,"ad":"東京都港区芝2-31-17","j":false},{"n":"東京・日本橋三越前","p":"東京都","r":"関東","ew":"東日本","rm":83,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"提携なし","st":"営業中","lat":35.6877,"lng":139.7788,"ad":"東京都中央区日本橋小舟町14-13","j":false},{"n":"Premier東京駅八重洲中央口","p":"東京都","r":"関東","ew":"東日本","rm":325,"on":"人工炭酸泉","pk":"自社・有料","pc":null,"pf":3000,"pn":"事前予約制・立体（車高制限あり）","st":"営業中","lat":35.6793,"lng":139.77,"ad":"東京都中央区八重洲2-2-7","j":false},{"n":"Premier銀座","p":"東京都","r":"関東","ew":"東日本","rm":116,"on":"天然温泉","pk":"自社・有料","pc":5,"pf":3500,"pn":"要予約","st":"営業中","lat":35.6708,"lng":139.7685,"ad":"東京都中央区銀座3-11-15","j":false},{"n":"JR上野入谷口","p":"東京都","r":"関東","ew":"東日本","rm":69,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.7153,"lng":139.7801,"ad":"東京都台東区上野7-9-14","j":false},{"n":"上野・御徒町","p":"東京都","r":"関東","ew":"東日本","rm":101,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"松坂屋パークプレイス24提携","st":"営業中","lat":35.7062,"lng":139.7759,"ad":"東京都台東区上野5-23-12","j":false},{"n":"秋葉原・末広町","p":"東京都","r":"関東","ew":"東日本","rm":106,"on":"人工炭酸泉","pk":"なし","pc":null,"pf":null,"pn":"提携なし","st":"営業中","lat":35.7033,"lng":139.7731,"ad":"東京都台東区上野3-2-5","j":false},{"n":"Premier秋葉原","p":"東京都","r":"関東","ew":"東日本","rm":136,"on":"天然温泉","pk":"自社・有料","pc":3,"pf":2000,"pn":"完全電話予約制","st":"営業中","lat":35.6968,"lng":139.774,"ad":"東京都千代田区神田須田町2-25-8","j":false},{"n":"浅草","p":"東京都","r":"関東","ew":"東日本","rm":112,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"提携なし","st":"営業中","lat":35.715,"lng":139.7982,"ad":"東京都台東区浅草2-33-1","j":false},{"n":"東京・赤羽駅東口一番街","p":"東京都","r":"関東","ew":"東日本","rm":49,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.7819,"lng":139.7199,"ad":"東京都北区赤羽1-41-13","j":false},{"n":"東京・赤羽駅南口","p":"東京都","r":"関東","ew":"東日本","rm":167,"on":"人工炭酸泉","pk":"自社・有料","pc":8,"pf":1500,"pn":"要予約","st":"営業中","lat":35.7771,"lng":139.7227,"ad":"東京都北区赤羽南1-9-1","j":false},{"n":"東京・大塚","p":"東京都","r":"関東","ew":"東日本","rm":80,"on":"なし","pk":"自社・有料","pc":2,"pf":2000,"pn":"要予約（15時〜翌10時）","st":"営業中","lat":35.7334,"lng":139.7284,"ad":"東京都豊島区北大塚2-17-13","j":false},{"n":"Premier池袋天然温泉","p":"東京都","r":"関東","ew":"東日本","rm":188,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.7349,"lng":139.7111,"ad":"東京都豊島区池袋2-64-6","j":false},{"n":"池袋西口天然温泉","p":"東京都","r":"関東","ew":"東日本","rm":201,"on":"天然温泉","pk":"自社・有料","pc":3,"pf":3000,"pn":"要電話予約","st":"営業中","lat":35.7319,"lng":139.7069,"ad":"東京都豊島区池袋2-14-1","j":false},{"n":"新宿歌舞伎町","p":"東京都","r":"関東","ew":"東日本","rm":117,"on":"人工炭酸泉","pk":"自社・有料","pc":3,"pf":2000,"pn":"予約必要","st":"営業中","lat":35.6971,"lng":139.7023,"ad":"東京都新宿区歌舞伎町2-39-9","j":false},{"n":"東京・JR新小岩","p":"東京都","r":"関東","ew":"東日本","rm":110,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"提携なし","st":"営業中","lat":35.7156,"lng":139.8585,"ad":"東京都葛飾区新小岩1-31-5","j":false},{"n":"東京・亀戸","p":"東京都","r":"関東","ew":"東日本","rm":93,"on":"なし","pk":"自社・有料","pc":20,"pf":1100,"pn":"予約制。近隣に200台のコインP","st":"営業中","lat":35.6992,"lng":139.8228,"ad":"東京都江東区亀戸2-13-6","j":false},{"n":"東京・錦糸町駅前","p":"東京都","r":"関東","ew":"東日本","rm":113,"on":"人工炭酸泉","pk":"自社・有料","pc":5,"pf":1600,"pn":"電話予約制","st":"営業中","lat":35.6978,"lng":139.8115,"ad":"東京都墨田区錦糸1-4-12","j":false},{"n":"東京・JR蒲田西口","p":"東京都","r":"関東","ew":"東日本","rm":114,"on":"人工炭酸泉","pk":"自社・有料","pc":8,"pf":1600,"pn":"要電話予約","st":"営業中","lat":35.5647,"lng":139.714,"ad":"東京都大田区西蒲田5-19-17","j":false},{"n":"東京・浜松町","p":"東京都","r":"関東","ew":"東日本","rm":99,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.6551,"lng":139.7548,"ad":"東京都港区浜松町2-2-1","j":false},{"n":"品川・新馬場","p":"東京都","r":"関東","ew":"東日本","rm":99,"on":"人工炭酸泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":35.6174,"lng":139.7443,"ad":"東京都品川区北品川2-30-26","j":false},{"n":"品川・青物横丁","p":"東京都","r":"関東","ew":"東日本","rm":104,"on":"人工炭酸泉","pk":"自社・有料","pc":null,"pf":1600,"pn":"電話予約・現金","st":"営業中","lat":35.613,"lng":139.7449,"ad":"東京都品川区東品川3-22-27","j":false},{"n":"東京・JR立川北口","p":"東京都","r":"関東","ew":"東日本","rm":96,"on":"人工炭酸泉","pk":"自社・有料","pc":2,"pf":1500,"pn":"要事前電話予約","st":"営業中","lat":35.6995,"lng":139.4175,"ad":"東京都立川市曙町2-21-9","j":false},{"n":"新横浜","p":"神奈川県","r":"関東","ew":"東日本","rm":252,"on":"人工炭酸泉","pk":"自社・有料","pc":4,"pf":null,"pn":"完全電話予約制（料金記載なし）","st":"営業中","lat":35.5083,"lng":139.6141,"ad":"神奈川県横浜市港北区新横浜2-6-20","j":false},{"n":"横浜・関内","p":"神奈川県","r":"関東","ew":"東日本","rm":234,"on":"なし","pk":"自社・有料","pc":19,"pf":1500,"pn":"電話予約制。満車時は提携P 1,500円〜","st":"営業中","lat":35.444,"lng":139.6428,"ad":"神奈川県横浜市中区山下町195-1","j":false},{"n":"戸塚駅東口","p":"神奈川県","r":"関東","ew":"東日本","rm":97,"on":"天然温泉","pk":"自社・有料","pc":4,"pf":1600,"pn":"電話予約のみ・現金","st":"営業中","lat":35.4044,"lng":139.5421,"ad":"神奈川県横浜市戸塚区吉田町3002-3","j":false},{"n":"湘南・藤沢駅南口","p":"神奈川県","r":"関東","ew":"東日本","rm":105,"on":"天然温泉","pk":"提携","pc":137,"pf":1200,"pn":"タイムズ藤沢リラパーキング（入庫後24時間）","st":"営業中","lat":35.3379,"lng":139.486,"ad":"神奈川県藤沢市南藤沢23-7","j":false},{"n":"Premier武蔵小杉駅前","p":"神奈川県","r":"関東","ew":"東日本","rm":137,"on":"天然温泉","pk":"自社・有料","pc":10,"pf":2000,"pn":"完全電話予約制","st":"営業中","lat":35.5747,"lng":139.6612,"ad":"神奈川県川崎市中原区新丸子東3-1184-1","j":false},{"n":"新潟","p":"新潟県","r":"甲信越","ew":"東日本","rm":100,"on":"なし","pk":"自社・有料","pc":35,"pf":800,"pn":"当日先着順（15時〜翌10時）","st":"営業中","lat":37.9169,"lng":139.0659,"ad":"新潟県新潟市中央区明石1-6-13","j":false},{"n":"新井・新潟","p":"新潟県","r":"甲信越","ew":"東日本","rm":84,"on":"天然温泉","pk":"自社・無料","pc":300,"pf":0,"pn":"予約不要","st":"営業中","lat":37.0281,"lng":138.227,"ad":"新潟県妙高市猪野山120-8","j":false},{"n":"上越妙高駅西口","p":"新潟県","r":"甲信越","ew":"東日本","rm":107,"on":"天然温泉","pk":"提携","pc":25,"pf":800,"pn":"提携立体・先着順","st":"営業中","lat":37.0812,"lng":138.2459,"ad":"新潟県上越市大和5-2-11","j":false},{"n":"Premier富山・城址公園前","p":"富山県","r":"北陸","ew":"東日本","rm":124,"on":"天然温泉","pk":"提携","pc":null,"pf":null,"pn":"テクノパーク24桜木町（割引あり）","st":"営業中","lat":36.6929,"lng":137.2129,"ad":"富山県富山市総曲輪1-1-21","j":false},{"n":"富山・射水","p":"富山県","r":"北陸","ew":"東日本","rm":101,"on":"天然温泉","pk":"自社・無料","pc":69,"pf":0,"pn":"先着順（料金記載なし）","st":"営業中","lat":36.724,"lng":137.0896,"ad":"富山県射水市三ケ3967-1","j":false},{"n":"Premier金沢駅東口","p":"石川県","r":"北陸","ew":"東日本","rm":165,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"近隣駐車場を案内","st":"営業中","lat":36.5744,"lng":136.6489,"ad":"石川県金沢市本町2-5-15","j":false},{"n":"石川・能美根上スマートインター","p":"石川県","r":"北陸","ew":"東日本","rm":126,"on":"天然温泉","pk":"自社・無料","pc":107,"pf":0,"pn":"敷地内平面・先着順","st":"営業中","lat":36.4694,"lng":136.4689,"ad":"石川県能美市吉原釜屋町ハ61-1","j":false},{"n":"越前・武生","p":"福井県","r":"北陸","ew":"東日本","rm":108,"on":"天然温泉","pk":"自社・有料","pc":73,"pf":500,"pn":"敷地内39台＋敷地外34台・先着順","st":"営業中","lat":35.9028,"lng":136.1668,"ad":"福井県越前市蓬莱町2-15","j":false},{"n":"甲府昭和インター","p":"山梨県","r":"甲信越","ew":"東日本","rm":101,"on":"天然温泉","pk":"自社・無料","pc":100,"pf":0,"pn":"平面・先着順。大型車は要予約","st":"営業中","lat":35.6432,"lng":138.5437,"ad":"山梨県中巨摩郡昭和町西条3787-1","j":false},{"n":"山梨・南アルプス","p":"山梨県","r":"甲信越","ew":"東日本","rm":101,"on":"天然温泉","pk":"自社・無料","pc":null,"pf":0,"pn":"大規模・10tトラック可","st":"営業中","lat":35.619,"lng":138.4658,"ad":"山梨県南アルプス市小笠原1432-1","j":false},{"n":"富士河口湖天然温泉","p":"山梨県","r":"甲信越","ew":"東日本","rm":105,"on":"天然温泉","pk":"自社・無料","pc":80,"pf":0,"pn":"敷地内平面・先着順（料金記載なし）。普通車以外は提携P 1,100円","st":"営業中","lat":35.4907,"lng":138.7651,"ad":"山梨県南都留郡富士河口湖町船津3062-5","j":false},{"n":"松本駅前","p":"長野県","r":"甲信越","ew":"東日本","rm":73,"on":"なし","pk":"自社・有料","pc":8,"pf":1000,"pn":"事前予約制","st":"営業中","lat":36.2329,"lng":137.9642,"ad":"長野県松本市中央1-1-7","j":false},{"n":"松本・お城口","p":"長野県","r":"甲信越","ew":"東日本","rm":91,"on":"天然温泉","pk":"提携","pc":150,"pf":1100,"pn":"提携シルクパーキング（高さ2.1mまで・途中入出庫不可）","st":"営業中","lat":36.228,"lng":137.9675,"ad":"長野県松本市深志1-5-5","j":false},{"n":"長野・飯田インター","p":"長野県","r":"甲信越","ew":"東日本","rm":108,"on":"天然温泉","pk":"自社・無料","pc":101,"pf":0,"pn":"先着順","st":"営業中","lat":35.5052,"lng":137.8033,"ad":"長野県飯田市北方365-1","j":false},{"n":"岐阜・中津川天然温泉","p":"岐阜県","r":"東海","ew":"東日本","rm":142,"on":"天然温泉","pk":"自社・無料","pc":121,"pf":0,"pn":"先着順","st":"営業中","lat":35.4681,"lng":137.4506,"ad":"岐阜県中津川市茄子川1389-1","j":false},{"n":"飛騨・高山","p":"岐阜県","r":"東海","ew":"東日本","rm":77,"on":"天然温泉","pk":"自社・有料","pc":22,"pf":800,"pn":"完全予約制","st":"営業中","lat":36.1401,"lng":137.2537,"ad":"岐阜県高山市天満町4-76","j":false},{"n":"大垣駅前","p":"岐阜県","r":"東海","ew":"東日本","rm":88,"on":"なし","pk":"提携","pc":null,"pf":950,"pn":"大垣駅前パーキング（入庫24時間）","st":"営業中","lat":35.3653,"lng":136.6153,"ad":"岐阜県大垣市宮町1-40","j":false},{"n":"長泉・沼津インター","p":"静岡県","r":"東海","ew":"東日本","rm":100,"on":"天然温泉","pk":"自社・無料","pc":75,"pf":0,"pn":"先着順","st":"営業中","lat":35.1537,"lng":138.8953,"ad":"静岡県駿東郡長泉町南一色416-1","j":false},{"n":"御殿場１号館","p":"静岡県","r":"東海","ew":"東日本","rm":100,"on":"天然温泉","pk":"自社・無料","pc":70,"pf":0,"pn":"先着順。トラック等は予約制","st":"営業中","lat":35.2976,"lng":138.9496,"ad":"静岡県御殿場市新橋286-13","j":false},{"n":"御殿場２号館","p":"静岡県","r":"東海","ew":"東日本","rm":102,"on":"天然温泉","pk":"自社・無料","pc":70,"pf":0,"pn":"第一40台＋第二30台","st":"営業中","lat":35.2977,"lng":138.9449,"ad":"静岡県御殿場市東田中1029-1","j":false},{"n":"富士宮","p":"静岡県","r":"東海","ew":"東日本","rm":104,"on":"天然温泉","pk":"自社・無料","pc":88,"pf":0,"pn":"ホテル前8台＋周辺","st":"営業中","lat":35.2339,"lng":138.6202,"ad":"静岡県富士宮市ひばりが丘695","j":false},{"n":"富士インター","p":"静岡県","r":"東海","ew":"東日本","rm":91,"on":"天然温泉","pk":"自社・無料","pc":65,"pf":0,"pn":"6m超のトラック不可","st":"営業中","lat":35.1619,"lng":138.6716,"ad":"静岡県富士市永田町2-43","j":false},{"n":"JR富士駅前禁煙館","p":"静岡県","r":"東海","ew":"東日本","rm":62,"on":"なし","pk":"自社・有料","pc":6,"pf":1000,"pn":"電話予約","st":"営業中","lat":35.1506,"lng":138.6517,"ad":"静岡県富士市横割本町2-18","j":false},{"n":"JR富士駅本館","p":"静岡県","r":"東海","ew":"東日本","rm":88,"on":"天然温泉","pk":"自社・有料","pc":60,"pf":500,"pn":"バイクも500円","st":"営業中","lat":35.151,"lng":138.6479,"ad":"静岡県富士市水戸島元町16-10","j":false},{"n":"浜松","p":"静岡県","r":"東海","ew":"東日本","rm":105,"on":"天然温泉","pk":"自社・無料","pc":null,"pf":0,"pn":"全長5m以下の普通車のみ","st":"営業中","lat":34.6995,"lng":137.7019,"ad":"静岡県浜松市中央区西伊場町58-7","j":false},{"n":"岡崎","p":"愛知県","r":"東海","ew":"東日本","rm":105,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":800,"pn":"到着順（15時〜翌10時）","st":"営業中","lat":34.9555,"lng":137.1701,"ad":"愛知県岡崎市祐金町113-1","j":false},{"n":"名古屋駅前","p":"愛知県","r":"東海","ew":"東日本","rm":139,"on":"なし","pk":"自社・有料","pc":9,"pf":1500,"pn":"要電話予約","st":"営業中","lat":35.1742,"lng":136.8791,"ad":"愛知県名古屋市中村区亀島2-12-6","j":false},{"n":"名古屋天然温泉","p":"愛知県","r":"東海","ew":"東日本","rm":110,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"近隣コインP（提携なし）","st":"営業中","lat":35.1746,"lng":136.879,"ad":"愛知県名古屋市中村区亀島2-12-1","j":false},{"n":"Premier名古屋天然温泉桜通口","p":"愛知県","r":"東海","ew":"東日本","rm":119,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"近隣コインP（提携なし）","st":"営業中","lat":35.1738,"lng":136.887,"ad":"愛知県名古屋市中村区名駅3-8-20","j":false},{"n":"近鉄四日市駅前禁煙館","p":"三重県","r":"東海","ew":"東日本","rm":80,"on":"なし","pk":"自社・有料","pc":8,"pf":1500,"pn":"事前電話予約制","st":"営業中","lat":34.966,"lng":136.6178,"ad":"三重県四日市市鵜の森1-2-21","j":false},{"n":"四日市・国道１号沿","p":"三重県","r":"東海","ew":"東日本","rm":105,"on":"天然温泉","pk":"自社・有料","pc":13,"pf":1500,"pn":"要電話予約","st":"営業中","lat":34.9643,"lng":136.6216,"ad":"三重県四日市市浜田町1-6","j":false},{"n":"鈴鹿","p":"三重県","r":"東海","ew":"東日本","rm":96,"on":"天然温泉","pk":"自社・無料","pc":60,"pf":0,"pn":"予約なし・平面","st":"営業中","lat":34.8733,"lng":136.5448,"ad":"三重県鈴鹿市算所1-8-24","j":false},{"n":"桑名駅前","p":"三重県","r":"東海","ew":"東日本","rm":97,"on":"なし","pk":"自社・有料","pc":null,"pf":600,"pn":"電話先着予約制。全長4.3m以上は近隣P","st":"営業中","lat":35.0679,"lng":136.6858,"ad":"三重県桑名市有楽町12","j":false},{"n":"松阪","p":"三重県","r":"東海","ew":"東日本","rm":88,"on":"なし","pk":"自社・無料","pc":80,"pf":0,"pn":"平面。大型車は1泊500円","st":"営業中","lat":34.5773,"lng":136.544,"ad":"三重県松阪市宮町144-2","j":false},{"n":"南彦根駅前","p":"滋賀県","r":"近畿","ew":"西日本","rm":95,"on":"なし","pk":"自社・無料","pc":50,"pf":0,"pn":"先着順","st":"営業中","lat":35.2479,"lng":136.2502,"ad":"滋賀県彦根市小泉町133-1","j":false},{"n":"滋賀・長浜天然温泉","p":"滋賀県","r":"近畿","ew":"西日本","rm":144,"on":"天然温泉","pk":"自社・無料","pc":80,"pf":0,"pn":"予約不要（料金記載なし）","st":"営業中","lat":35.3974,"lng":136.2667,"ad":"滋賀県長浜市神照町974-6","j":false},{"n":"滋賀・草津国道1号沿","p":"滋賀県","r":"近畿","ew":"西日本","rm":99,"on":"天然温泉","pk":"自社・無料","pc":59,"pf":0,"pn":"平面","st":"営業中","lat":35.0152,"lng":135.966,"ad":"滋賀県草津市草津1-20-19","j":false},{"n":"大津駅前","p":"滋賀県","r":"近畿","ew":"西日本","rm":80,"on":"なし","pk":"自社・有料","pc":27,"pf":800,"pn":"電話予約制。契約駐車場は500円","st":"営業中","lat":35.0055,"lng":135.8667,"ad":"滋賀県大津市京町3-2-7","j":false},{"n":"東舞鶴","p":"京都府","r":"近畿","ew":"西日本","rm":100,"on":"天然温泉","pk":"自社・無料","pc":33,"pf":0,"pn":"第一・第二。第三は有料","st":"営業中","lat":35.4745,"lng":135.3952,"ad":"京都府舞鶴市浜419","j":false},{"n":"京都・四条河原町","p":"京都府","r":"近畿","ew":"西日本","rm":177,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"提携なし","st":"営業中","lat":35.01,"lng":135.7514,"ad":"京都府京都市中京区新京極通四条上る中之町538-1","j":false},{"n":"京都福知山天然温泉","p":"京都府","r":"近畿","ew":"西日本","rm":143,"on":"天然温泉","pk":"自社・無料","pc":128,"pf":0,"pn":"敷地内平面。大型車は予約制","st":"開業予定（2027年1月）","lat":35.2967,"lng":135.1264,"ad":"京都府福知山市土師宮町2-213-1","j":false},{"n":"JR新大阪東口","p":"大阪府","r":"近畿","ew":"西日本","rm":105,"on":"天然温泉","pk":"自社・有料","pc":2,"pf":null,"pn":"要電話予約・連泊不可（料金記載なし）","st":"営業中","lat":34.7325,"lng":135.5041,"ad":"大阪府大阪市東淀川区東中島1-13-26","j":false},{"n":"梅田・肥後橋","p":"大阪府","r":"近畿","ew":"西日本","rm":80,"on":"なし","pk":"自社・有料","pc":null,"pf":1500,"pn":"電話予約制。2026年8月予約分から2,000円","st":"営業中","lat":34.6889,"lng":135.4953,"ad":"大阪府大阪市西区江戸堀1-20-1","j":false},{"n":"地下鉄谷町四丁目6号口","p":"大阪府","r":"近畿","ew":"西日本","rm":74,"on":"なし","pk":"自社・有料","pc":3,"pf":1500,"pn":"電話予約","st":"営業中","lat":34.6823,"lng":135.514,"ad":"大阪府大阪市中央区常盤町2-2-29","j":false},{"n":"Premier大阪本町駅前","p":"大阪府","r":"近畿","ew":"西日本","rm":170,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":34.6823,"lng":135.4963,"ad":"大阪府大阪市西区西本町1-5-10","j":false},{"n":"なんば・日本橋","p":"大阪府","r":"近畿","ew":"西日本","rm":136,"on":"なし","pk":"自社・有料","pc":5,"pf":1500,"pn":"電話予約制","st":"営業中","lat":34.6657,"lng":135.5059,"ad":"大阪府大阪市中央区日本橋1-20-5","j":false},{"n":"Premierなんば心斎橋天然温泉","p":"大阪府","r":"近畿","ew":"西日本","rm":107,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":34.6699,"lng":135.4975,"ad":"大阪府大阪市中央区西心斎橋2-16-8","j":false},{"n":"御堂筋線・江坂","p":"大阪府","r":"近畿","ew":"西日本","rm":108,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"提携なし","st":"営業中","lat":34.7556,"lng":135.498,"ad":"大阪府吹田市広芝町12-33","j":false},{"n":"門真","p":"大阪府","r":"近畿","ew":"西日本","rm":105,"on":"天然温泉","pk":"自社・有料","pc":23,"pf":1100,"pn":"要電話予約","st":"営業中","lat":34.7355,"lng":135.5826,"ad":"大阪府門真市新橋町15-20","j":false},{"n":"堺マリティマ","p":"大阪府","r":"近畿","ew":"西日本","rm":99,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"","st":"営業中","lat":34.5783,"lng":135.4685,"ad":"大阪府堺市堺区大町西3-4-1","j":false},{"n":"関空・熊取駅前","p":"大阪府","r":"近畿","ew":"西日本","rm":108,"on":"人工炭酸泉","pk":"自社・無料","pc":14,"pf":0,"pn":"敷地内・先着順。提携P30台（サービス券）","st":"営業中","lat":34.407,"lng":135.3427,"ad":"大阪府泉南郡熊取町大久保中1-13-6","j":false},{"n":"神戸","p":"兵庫県","r":"近畿","ew":"西日本","rm":87,"on":"なし","pk":"自社・有料","pc":10,"pf":1500,"pn":"完全電話予約制（15時〜翌10時）","st":"営業中","lat":34.6992,"lng":135.1938,"ad":"兵庫県神戸市中央区加納町2-1-11","j":false},{"n":"加古川駅前","p":"兵庫県","r":"近畿","ew":"西日本","rm":100,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"近隣コインP（24時間800〜1,000円程度）","st":"営業中","lat":34.7674,"lng":134.8353,"ad":"兵庫県加古川市加古川町寺家町621","j":false},{"n":"PremierJR奈良駅","p":"奈良県","r":"近畿","ew":"西日本","rm":230,"on":"天然温泉","pk":"自社・有料","pc":18,"pf":1500,"pn":"予約制","st":"営業中","lat":34.6776,"lng":135.8171,"ad":"奈良県奈良市三条本町1-2","j":false},{"n":"JR奈良駅前・三条通り","p":"奈良県","r":"近畿","ew":"西日本","rm":98,"on":"なし","pk":"なし","pc":null,"pf":null,"pn":"提携なし","st":"営業中","lat":34.6816,"lng":135.8212,"ad":"奈良県奈良市三条町500-1","j":false},{"n":"奈良・大和郡山","p":"奈良県","r":"近畿","ew":"西日本","rm":92,"on":"天然温泉","pk":"自社・無料","pc":77,"pf":0,"pn":"大型車は予約制","st":"営業中","lat":34.6318,"lng":135.7881,"ad":"奈良県大和郡山市杉町205-1","j":false},{"n":"奈良・新大宮駅前","p":"奈良県","r":"近畿","ew":"西日本","rm":97,"on":"なし","pk":"自社・有料","pc":19,"pf":800,"pn":"予約制","st":"営業中","lat":34.6863,"lng":135.8117,"ad":"奈良県奈良市芝辻町4-2-7","j":false},{"n":"鳥取駅前","p":"鳥取県","r":"中国","ew":"西日本","rm":92,"on":"なし","pk":"自社・有料","pc":42,"pf":600,"pn":"立体・先着順（サイズ・時間制限あり）","st":"営業中","lat":35.4925,"lng":134.2247,"ad":"鳥取県鳥取市扇町5","j":false},{"n":"鳥取駅北口禁煙館","p":"鳥取県","r":"中国","ew":"西日本","rm":91,"on":"天然温泉","pk":"自社・有料","pc":33,"pf":700,"pn":"先着順。提携P 600円あり","st":"営業中","lat":35.4958,"lng":134.2231,"ad":"鳥取県鳥取市今町2-382","j":false},{"n":"米子駅前","p":"鳥取県","r":"中国","ew":"西日本","rm":134,"on":"天然温泉","pk":"提携","pc":30,"pf":500,"pn":"提携・先着順（高さ2m・途中入出庫不可）","st":"営業中","lat":35.4249,"lng":133.3359,"ad":"鳥取県米子市万能町112","j":false},{"n":"島根・松江駅前","p":"島根県","r":"中国","ew":"西日本","rm":94,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"近隣駐車場を案内","st":"営業中","lat":35.4658,"lng":133.0622,"ad":"島根県松江市御手船場町557-10","j":false},{"n":"出雲駅前","p":"島根県","r":"中国","ew":"西日本","rm":121,"on":"なし","pk":"要確認","pc":null,"pf":null,"pn":"楽天にプラン内容参照とのみ記載","st":"営業中","lat":35.3601,"lng":132.7558,"ad":"島根県出雲市駅南町1-3-3","j":false},{"n":"江津駅前","p":"島根県","r":"中国","ew":"西日本","rm":71,"on":"天然温泉","pk":"自社・無料","pc":50,"pf":0,"pn":"敷地内20台＋第2駐車場30台","st":"営業中","lat":35.0126,"lng":132.2193,"ad":"島根県江津市江津町1215","j":false},{"n":"Inn倉敷水島","p":"岡山県","r":"中国","ew":"西日本","rm":152,"on":"天然温泉","pk":"自社・無料","pc":108,"pf":0,"pn":"平面・予約不要","st":"営業中","lat":34.5389,"lng":133.7432,"ad":"岡山県倉敷市水島西栄町10-8","j":false},{"n":"岡山駅東口","p":"岡山県","r":"中国","ew":"西日本","rm":108,"on":"天然温泉","pk":"提携","pc":null,"pf":1500,"pn":"近隣提携駐車場","st":"営業中","lat":34.6602,"lng":133.915,"ad":"岡山県岡山市北区桑田町17-10","j":false},{"n":"広島","p":"広島県","r":"中国","ew":"西日本","rm":105,"on":"なし","pk":"提携","pc":30,"pf":1100,"pn":"メイセイパーク（2.1m以下・途中入出庫不可）","st":"営業中","lat":34.3882,"lng":132.466,"ad":"広島県広島市中区西平塚町8-11","j":false},{"n":"広島天然温泉・薬研堀通り","p":"広島県","r":"中国","ew":"西日本","rm":150,"on":"天然温泉","pk":"自社・有料","pc":8,"pf":2000,"pn":"先着順（12時〜）","st":"営業中","lat":34.3891,"lng":132.464,"ad":"広島県広島市中区田中町2-28","j":false},{"n":"三原駅前","p":"広島県","r":"中国","ew":"西日本","rm":108,"on":"天然温泉","pk":"自社・無料","pc":44,"pf":0,"pn":"敷地内10台＋向かい34台","st":"営業中","lat":34.398,"lng":133.0838,"ad":"広島県三原市城町1-12-10","j":false},{"n":"東広島八本松天然温泉","p":"広島県","r":"中国","ew":"西日本","rm":148,"on":"天然温泉","pk":"自社・無料","pc":114,"pf":0,"pn":"先着順","st":"開業予定（2026年12月）","lat":34.4475,"lng":132.7021,"ad":"広島県東広島市八本松東6-1-38","j":false},{"n":"山口湯田温泉","p":"山口県","r":"中国","ew":"西日本","rm":237,"on":"天然温泉","pk":"提携","pc":185,"pf":400,"pn":"湯田パーキング・先着順","st":"営業中","lat":34.1645,"lng":131.4567,"ad":"山口県山口市湯田温泉4-1-5","j":false},{"n":"防府駅前","p":"山口県","r":"中国","ew":"西日本","rm":90,"on":"天然温泉","pk":"自社・無料","pc":53,"pf":0,"pn":"平面・先着順（大型・中型不可）","st":"営業中","lat":34.0545,"lng":131.5691,"ad":"山口県防府市戎町1-2-18","j":false},{"n":"Premier下関","p":"山口県","r":"中国","ew":"西日本","rm":116,"on":"天然温泉","pk":"自社・有料","pc":18,"pf":600,"pn":"敷地内平面・先着順","st":"営業中","lat":33.9493,"lng":130.9285,"ad":"山口県下関市細江新町3-50","j":false},{"n":"阿南・富岡","p":"徳島県","r":"四国","ew":"西日本","rm":119,"on":"天然温泉","pk":"自社・無料","pc":100,"pf":0,"pn":"平面・大型車可","st":"営業中","lat":33.9103,"lng":134.6687,"ad":"徳島県阿南市学原町深田9-1","j":false},{"n":"阿南・市役所前禁煙館","p":"徳島県","r":"四国","ew":"西日本","rm":104,"on":"天然温泉","pk":"自社・無料","pc":80,"pf":0,"pn":"平面","st":"営業中","lat":33.9202,"lng":134.659,"ad":"徳島県阿南市富岡町トノ町51-9","j":false},{"n":"徳島・小松島天然温泉","p":"徳島県","r":"四国","ew":"西日本","rm":99,"on":"天然温泉","pk":"自社・無料","pc":87,"pf":0,"pn":"先着順","st":"営業中","lat":34.013,"lng":134.5795,"ad":"徳島県小松島市小松島町字若井崎10-6","j":false},{"n":"高松禁煙館","p":"香川県","r":"四国","ew":"西日本","rm":68,"on":"天然温泉","pk":"提携","pc":null,"pf":null,"pn":"近隣に提携3か所（料金記載なし）","st":"営業中","lat":34.3367,"lng":134.0521,"ad":"香川県高松市観光通1-4-12","j":false},{"n":"高松・田町","p":"香川県","r":"四国","ew":"西日本","rm":131,"on":"天然温泉","pk":"提携","pc":null,"pf":1000,"pn":"提携P田町駐車場（7:30〜24:00）","st":"営業中","lat":34.3385,"lng":134.0488,"ad":"香川県高松市田町1-1","j":false},{"n":"丸亀駅前","p":"香川県","r":"四国","ew":"西日本","rm":108,"on":"天然温泉","pk":"自社・無料","pc":100,"pf":0,"pn":"第1・第2平面（大型車不可）","st":"営業中","lat":34.2912,"lng":133.7963,"ad":"香川県丸亀市通町142-1","j":false},{"n":"松山","p":"愛媛県","r":"四国","ew":"西日本","rm":94,"on":"なし","pk":"自社・有料","pc":55,"pf":550,"pn":"大型車・バス可","st":"営業中","lat":33.8407,"lng":132.7783,"ad":"愛媛県松山市此花町5-31","j":false},{"n":"八幡浜","p":"愛媛県","r":"四国","ew":"西日本","rm":86,"on":"天然温泉","pk":"自社・無料","pc":33,"pf":0,"pn":"予約不可","st":"営業中","lat":33.4584,"lng":132.4235,"ad":"愛媛県八幡浜市千代田町1460-123","j":false},{"n":"新居浜","p":"愛媛県","r":"四国","ew":"西日本","rm":102,"on":"天然温泉","pk":"自社・無料","pc":70,"pf":0,"pn":"約70台・先着順","st":"営業中","lat":33.9522,"lng":133.2872,"ad":"愛媛県新居浜市高木町3-7","j":false},{"n":"伊予西条","p":"愛媛県","r":"四国","ew":"西日本","rm":108,"on":"天然温泉","pk":"自社・無料","pc":75,"pf":0,"pn":"敷地内平面・先着順","st":"営業中","lat":33.9291,"lng":133.1815,"ad":"愛媛県西条市朔日市777-1","j":false},{"n":"愛媛・大洲インター","p":"愛媛県","r":"四国","ew":"西日本","rm":103,"on":"天然温泉","pk":"自社・無料","pc":80,"pf":0,"pn":"平面・約80台","st":"営業中","lat":33.5276,"lng":132.5711,"ad":"愛媛県大洲市東大洲1487","j":false},{"n":"四国中央","p":"愛媛県","r":"四国","ew":"西日本","rm":100,"on":"天然温泉","pk":"自社・無料","pc":84,"pf":0,"pn":"予約不要","st":"営業中","lat":33.9865,"lng":133.5708,"ad":"愛媛県四国中央市下柏町852-1","j":false},{"n":"今治","p":"愛媛県","r":"四国","ew":"西日本","rm":146,"on":"天然温泉","pk":"自社・無料","pc":111,"pf":0,"pn":"先着順","st":"営業中","lat":34.059,"lng":133.0052,"ad":"愛媛県今治市松本町4-6-10","j":false},{"n":"宇和島駅前天然温泉","p":"愛媛県","r":"四国","ew":"西日本","rm":126,"on":"天然温泉","pk":"自社・有料","pc":88,"pf":700,"pn":"敷地内11台＋敷地外77台","st":"営業中","lat":33.2241,"lng":132.567,"ad":"愛媛県宇和島市錦町4-1","j":false},{"n":"高知","p":"高知県","r":"四国","ew":"西日本","rm":120,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":800,"pn":"予約不可・到着順（15時〜翌10時）","st":"営業中","lat":33.5655,"lng":133.54,"ad":"高知県高知市北本町1-3-20","j":false},{"n":"Premier博多駅・筑紫口天然温泉","p":"福岡県","r":"九州","ew":"西日本","rm":160,"on":"天然温泉","pk":"自社・有料","pc":7,"pf":2000,"pn":"事前予約制","st":"営業中","lat":33.5859,"lng":130.4245,"ad":"福岡県福岡市博多区博多駅南","j":false},{"n":"Inn博多","p":"福岡県","r":"九州","ew":"西日本","rm":54,"on":"なし","pk":"自社・有料","pc":6,"pf":750,"pn":"要電話予約","st":"営業中","lat":33.5981,"lng":130.4116,"ad":"福岡県福岡市博多区上呉服町11-32","j":false},{"n":"小倉駅南口","p":"福岡県","r":"九州","ew":"西日本","rm":108,"on":"人工炭酸泉","pk":"提携","pc":null,"pf":900,"pn":"APパーク小倉駅前（15時〜翌10時）","st":"営業中","lat":33.8858,"lng":130.8788,"ad":"福岡県北九州市小倉北区京町1-6-34","j":false},{"n":"長崎・諫早天然温泉","p":"長崎県","r":"九州","ew":"西日本","rm":152,"on":"天然温泉","pk":"自社・無料","pc":119,"pf":0,"pn":"敷地内89台＋敷地外30台","st":"営業中","lat":32.8755,"lng":130.0586,"ad":"長崎県諫早市福田町282-1","j":false},{"n":"Premier阿蘇熊本空港","p":"熊本県","r":"九州","ew":"西日本","rm":203,"on":"天然温泉","pk":"自社・無料","pc":127,"pf":0,"pn":"敷地内・先着順。大型車は有料予約","st":"営業中","lat":32.889,"lng":130.852,"ad":"熊本県菊池郡大津町室1412-3","j":false},{"n":"熊本駅前天然温泉","p":"熊本県","r":"九州","ew":"西日本","rm":100,"on":"天然温泉","pk":"提携","pc":null,"pf":1000,"pn":"JR熊本駅ビル第1駐車場（入庫から24時間）","st":"営業中","lat":32.789,"lng":130.6898,"ad":"熊本県熊本市西区春日2-3-23","j":false},{"n":"熊本・八代","p":"熊本県","r":"九州","ew":"西日本","rm":100,"on":"天然温泉","pk":"自社・無料","pc":78,"pf":0,"pn":"先着順","st":"営業中","lat":32.5012,"lng":130.6112,"ad":"熊本県八代市夕葉町4-1","j":false},{"n":"熊本・山鹿","p":"熊本県","r":"九州","ew":"西日本","rm":101,"on":"天然温泉","pk":"自社・無料","pc":88,"pf":0,"pn":"平面・先着順","st":"営業中","lat":33.0136,"lng":130.6839,"ad":"熊本県山鹿市大橋通902-2","j":false},{"n":"大分・中津駅前","p":"大分県","r":"九州","ew":"西日本","rm":104,"on":"天然温泉","pk":"自社・無料","pc":null,"pf":0,"pn":"先着順・予約不可","st":"営業中","lat":33.5956,"lng":131.1908,"ad":"大分県中津市東本町3-12","j":false},{"n":"別府駅前","p":"大分県","r":"九州","ew":"西日本","rm":132,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":500,"pn":"先着順・予約不可","st":"営業中","lat":33.2793,"lng":131.5015,"ad":"大分県別府市駅前町13-8","j":false},{"n":"宮崎天然温泉","p":"宮崎県","r":"九州","ew":"西日本","rm":124,"on":"天然温泉","pk":"提携","pc":null,"pf":1000,"pn":"コージーパーク（14:30〜翌11:30）","st":"営業中","lat":31.9112,"lng":131.4225,"ad":"宮崎県宮崎市橘通東2-2-6","j":false},{"n":"Premier宮崎一番街","p":"宮崎県","r":"九州","ew":"西日本","rm":132,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":1100,"pn":"先着順・予約不可","st":"営業中","lat":31.9151,"lng":131.4206,"ad":"宮崎県宮崎市中央通7-18","j":false},{"n":"薩摩川内","p":"鹿児島県","r":"九州","ew":"西日本","rm":81,"on":"天然温泉","pk":"自社・有料","pc":null,"pf":500,"pn":"完全予約制","st":"営業中","lat":31.8129,"lng":130.3104,"ad":"鹿児島県薩摩川内市鳥追町6-20","j":false},{"n":"霧島天然温泉","p":"鹿児島県","r":"九州","ew":"西日本","rm":150,"on":"天然温泉","pk":"自社・無料","pc":125,"pf":0,"pn":"","st":"営業中","lat":31.7379,"lng":130.7509,"ad":"鹿児島県霧島市国分野口町3","j":false},{"n":"那覇・新都心","p":"沖縄県","r":"沖縄","ew":"西日本","rm":90,"on":"なし","pk":"自社・有料","pc":6,"pf":1000,"pn":"敷地内6台。提携P20台は500円","st":"営業中","lat":26.2256,"lng":127.698,"ad":"沖縄県那覇市おもろまち4-16-27","j":false},{"n":"沖縄・名護","p":"沖縄県","r":"沖縄","ew":"西日本","rm":84,"on":"大浴場","pk":"自社・無料","pc":null,"pf":0,"pn":"当日先着順","st":"営業中","lat":26.6045,"lng":127.9737,"ad":"沖縄県名護市宮里1018","j":false},{"n":"石垣島","p":"沖縄県","r":"沖縄","ew":"西日本","rm":41,"on":"なし","pk":"自社・有料","pc":23,"pf":300,"pn":"到着順","st":"営業中","lat":24.3417,"lng":124.1575,"ad":"沖縄県石垣市石垣36","j":false},{"n":"池袋駅北口","p":"東京都","r":"関東","ew":"東日本","rm":211,"on":"人工炭酸泉","pk":"なし","pc":null,"pf":null,"pn":"近隣コインP","st":"営業中","lat":35.7351,"lng":139.7106,"ad":"東京都豊島区池袋2-62-14","j":false},{"n":"安城駅前","p":"愛知県","r":"東海","ew":"東日本","rm":115,"on":"天然温泉","pk":"自社・無料","pc":45,"pf":0,"pn":"平面21台＋第二24台","st":"営業中","lat":34.9599,"lng":137.0888,"ad":"愛知県安城市明治本町2-2","j":false},{"n":"大阪天然温泉（湯元 花乃井）","p":"大阪府","r":"近畿","ew":"西日本","rm":388,"on":"天然温泉","pk":"なし","pc":null,"pf":null,"pn":"近隣コインP","st":"営業中","lat":34.6855,"lng":135.4852,"ad":"大阪府大阪市西区江戸堀3-6-35","j":false},{"n":"宇部・興産通り","p":"山口県","r":"中国","ew":"西日本","rm":108,"on":"天然温泉","pk":"自社・有料","pc":40,"pf":500,"pn":"現金・先着順","st":"営業中","lat":33.9562,"lng":131.2396,"ad":"山口県宇部市中央町3-14-14","j":false},{"n":"熊本商工会議所前","p":"熊本県","r":"九州","ew":"西日本","rm":249,"on":"天然温泉","pk":"自社・有料","pc":140,"pf":550,"pn":"15時〜受付","st":"営業中","lat":32.7957,"lng":130.6991,"ad":"熊本県熊本市中央区魚屋町1-30-1","j":false},{"n":"水俣","p":"熊本県","r":"九州","ew":"西日本","rm":93,"on":"なし","pk":"自社・有料","pc":40,"pf":300,"pn":"先着順","st":"営業中","lat":32.2083,"lng":130.4002,"ad":"熊本県水俣市大黒町1-1-38","j":false}];
+const REGIONS = ["北海道","東北","関東","甲信越","北陸","東海","近畿","中国","四国","九州","沖縄"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const yen = v => v == null ? "記載なし" : (v === 0 ? "無料" : v.toLocaleString() + "円");
 
-function sw(id,e){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-  e.target.classList.add('active');
-  el('pane-'+id).classList.add('active');
-  if(id==='cleaning') calcCleaning();
+function kpis(rows){
+  const o = rows.filter(d => d.st === "営業中"), sum = o.reduce((s,d)=>s+d.rm,0);
+  const k = [["店舗数（営業中）",o.length,""],["客室数合計",sum.toLocaleString(),""],["1店舗平均",o.length?Math.round(sum/o.length)+"室":"―",""],
+    ["天然温泉あり",o.filter(d=>d.on==="天然温泉").length,""],["温泉・大浴場なし",o.filter(d=>d.on==="なし").length,"red"],
+    ["駐車場なし",o.filter(d=>d.pk==="なし").length,"red"],["駐車場が有料・提携",o.filter(d=>d.pk==="自社・有料"||d.pk==="提携").length,""]];
+  document.getElementById("kpis").innerHTML = k.map(([l,v,c]) => `<div class="kpi ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+}
+kpis(DATA);
+const regionsEl = document.getElementById("regions");
+REGIONS.forEach(r => {
+  const n = DATA.filter(d => d.r === r).length;
+  const b = document.createElement("button");
+  b.textContent = `${r}（${n}）`;
+  b.onclick = () => { document.querySelectorAll(".regions button").forEach(x => x.classList.remove("on")); b.classList.add("on"); show(r); };
+  regionsEl.appendChild(b);
+});
+
+function onsenBadge(on){
+  if (on === "なし") return `<span class="b none">温泉・大浴場なし</span>`;
+  const cls = on === "天然温泉" ? "ten" : on === "人工炭酸泉" ? "tan" : "bath";
+  return `<span class="b ${cls}">${esc(on)}</span>`;
+}
+function parkBadge(d){
+  if (d.pk === "なし") return `<span class="b none">駐車場なし</span>`;
+  if (d.pk === "要確認") return `<span class="b">駐車場 要確認</span>`;
+  if (d.pk === "提携") return `<span class="b">提携駐車場 ${d.pf != null ? yen(d.pf) : ""}</span>`;
+  return `<span class="b">駐車場 ${yen(d.pf) === "記載なし" ? "有料（料金記載なし）" : yen(d.pf)}</span>`;
 }
 
-/* sync functions */
-function syncO(v){el('osaka-n').value=v;calc();}
-function syncON(v){v=Math.min(8,Math.max(2,parseInt(v)||2));el('osaka-n').value=v;el('osaka-r').value=v;calc();}
-function syncS(v){el('saitama-n').value=v;calc();}
-function syncSN(v){v=Math.min(10,Math.max(2,parseInt(v)||2));el('saitama-n').value=v;el('saitama-r').value=v;calc();}
-function syncRem(v){el('remote-pct').value=v;calc();}
-function syncRemN(v){el('remote-r').value=Math.min(100,Math.max(0,v));calc();}
-function syncTN(v){el('trans-n').value=v;calc();}
-function syncTNN(v){v=Math.min(4,Math.max(1,parseInt(v)||1));el('trans-n').value=v;el('trans-n-r').value=v;calc();}
-function syncHotel(v){el('hotel').value=v;calc();}
-function syncHotelN(v){el('hotel-r').value=Math.min(60000,Math.max(0,v));calc();}
-function syncAds(v){el('ads').value=v;calc();}
-function syncAdsN(v){el('ads-r').value=Math.min(200000,Math.max(0,v));calc();}
-function syncAirbnb(v){el('airbnb').value=v;calc();}
-function syncAirbnbN(v){el('airbnb-r').value=Math.min(300000,Math.max(0,v));calc();}
-function syncSubG(v){el('sub-grad').value=v;calc();}
-function syncSubGN(v){el('sub-grad-r').value=Math.min(100,Math.max(0,v));calc();}
-function syncSubB(v){el('sub-basic').value=v;calc();}
-function syncSubBN(v){el('sub-basic-r').value=Math.min(200,Math.max(0,v));calc();}
-function syncSubBiz(v){el('sub-biz').value=v;calc();}
-function syncSubBizN(v){el('sub-biz-r').value=Math.min(200,Math.max(0,v));calc();}
-function syncCLN(v){el('cl-n').value=v;calcCleaning();}
-function syncCLNN(v){el('cl-n-r').value=Math.min(18,Math.max(2,parseInt(v)||2));calcCleaning();}
-function syncCLSB(v){el('cls-basic').value=v;calcCleaning();}
-function syncCLSBN(v){el('cls-basic-r').value=Math.min(200,Math.max(0,v));calcCleaning();}
-function syncCLSF(v){el('cls-full').value=v;calcCleaning();}
-function syncCLSFN(v){el('cls-full-r').value=Math.min(200,Math.max(0,v));calcCleaning();}
-
-/* 変動費/名 */
-function varPP(n,price,discount,remotePct,cardPct){
-  const pairs=Math.floor(n/2);
-  const pairUnit=g('pair-unit');
-  const matPair=(pairUnit*5)+(200*6);
-  const matP=(matPair*pairs/n)+60+310+150+200+400;
-  const remN=Math.round(n*remotePct);
-  const cardN=Math.round(n*cardPct);
-  const bankN=n-cardN;
-  const feeP=(price*0.036*cardN+price*0.015*bankN)/n;
-  const discP=discount*remN/n;
-  return matP+1250+1100+feeP+discP;
+function show(region){
+  const rows = DATA.filter(d => d.r === region);
+  kpis(rows);
+  rows.sort((a,b) => a.p.localeCompare(b.p,"ja") || a.n.localeCompare(b.n,"ja"));
+  const open = rows.filter(d => d.st === "営業中");
+  document.getElementById("summary").textContent =
+    `${region}：${rows.length}店舗／客室 計${open.reduce((s,d)=>s+d.rm,0).toLocaleString()}室（営業中）`;
+  document.getElementById("list").innerHTML = rows.map(d => {
+    const gm = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("スーパーホテル" + d.n + " " + d.ad);
+    const bath = d.on === "なし" ? `<span class="alert">なし</span>` : `あり（${esc(d.on)}）`;
+    const park = d.pk === "なし" ? `<span class="alert">なし</span>` : esc(d.pk);
+    return `<details class="store">
+      <summary><div>
+        <div class="name">${d.j ? "★ " : ""}${esc(d.n)}<span class="pref">${esc(d.p)}</span></div>
+        <div class="badges"><span class="b">${d.rm}室</span>${onsenBadge(d.on)}${parkBadge(d)}${d.st!=="営業中" ? `<span class="b soon">${esc(d.st)}</span>` : ""}</div>
+      </div></summary>
+      <div class="detail"><dl>
+        <dt>客室数</dt><dd class="big">${d.rm}室</dd>
+        <dt>温泉・大浴場</dt><dd>${bath}</dd>
+        <dt>駐車場</dt><dd>${park}</dd>
+        ${d.pk!=="なし" ? `<dt>台数</dt><dd>${d.pc != null ? d.pc + "台" : "記載なし"}</dd>
+        <dt>駐車料金</dt><dd class="big">${d.pk==="要確認" ? "要確認" : yen(d.pf) + (d.pf ? "／1泊" : "")}</dd>` : ""}
+        ${d.pn ? `<dt>駐車場の備考</dt><dd>${esc(d.pn)}</dd>` : ""}
+        <dt>住所</dt><dd>${esc(d.ad)}</dd>
+      </dl>
+      <a class="gm" href="${gm}" target="_blank" rel="noopener">Googleマップで開く</a></div>
+    </details>`;
+  }).join("");
 }
-function revPP(price,discount,remotePct,cardPct,n){
-  const remN=Math.round(n*remotePct);
-  const cardN=Math.round(n*cardPct);
-  const bankN=n-cardN;
-  const feeP=(price*0.036*cardN+price*0.015*bankN)/n;
-  const discP=discount*remN/n;
-  return price-discP-feeP;
-}
-
-let bepChart=null;
-let lastProfit=0;
-let lastFixed=0;
-
-function calc(){
-  const oN=Math.min(8,Math.max(2,parseInt(el('osaka-n').value)||2));
-  const sN=Math.min(10,Math.max(2,parseInt(el('saitama-n').value)||2));
-  el('osaka-note').textContent=oN+'名 → '+Math.floor(oN/2)+'ペア';
-  el('saitama-note').textContent=sN+'名 → '+Math.floor(sN/2)+'ペア';
-  const totalN=oN+sN;
-  const price=g('price');const discount=g('discount');
-  const remotePct=g('remote-pct')/100;const cardPct=g('card-pct')/100;
-
-  const transTotal=g('trans-unit')*g('trans-n');
-  el('disp-trans').textContent=fmt(transTotal);
-  const hotel=g('hotel');
-
-  const fixed=g('labor')+transTotal+hotel+g('venue')+g('wifi')+g('equip')+g('ads')+g('platform')+g('misc')+1000*3*2;
-  lastFixed=fixed;
-
-  const subGrad=g('sub-grad')*980;
-  const subBasic=g('sub-basic')*2980;
-  const subBiz=g('sub-biz')*4980;
-  el('disp-sub-grad').textContent=fmt(subGrad);
-  el('disp-sub-basic').textContent=fmt(subBasic);
-  el('disp-sub-biz').textContent=fmt(subBiz);
-  const extra=subGrad+subBasic+subBiz+g('airbnb')+g('media-n')*g('media-p');
-
-  const vpP=varPP(totalN,price,discount,remotePct,cardPct);
-  const rvP=revPP(price,discount,remotePct,cardPct,totalN);
-  const contP=rvP-vpP;
-  const netFixed=Math.max(0,fixed-extra);
-  const bepN=contP>0?Math.ceil(netFixed/contP):9999;
-  const oR=oN/(oN+sN);
-  const bepO=Math.ceil(bepN*oR);
-  const bepS=Math.max(0,bepN-bepO);
-  const totalRev=rvP*totalN;
-  const totalVar=vpP*totalN;
-  const profit=totalRev+extra-totalVar-fixed;
-  lastProfit=profit;
-  const fillPct=bepN<9999?Math.min(100,Math.max(0,Math.round((totalN/bepN)*100))):100;
-  const isP=profit>=0;
-
-  /* 限界利益カード（受講料セクション横） */
-  const pairs=Math.floor(totalN/2);
-  const pairUnit=g('pair-unit');
-  const matPair=(pairUnit*5)+(200*6);
-  const matPP=(matPair*pairs/totalN)+60+310+150+200+400;
-  const remN2=Math.round(totalN*(g('remote-pct')/100));
-  const cardN2=Math.round(totalN*(g('card-pct')/100));
-  const bankN2=totalN-cardN2;
-  const feePP=(price*0.036*cardN2+price*0.015*bankN2)/totalN;
-  const discPP=discount*remN2/totalN;
-
-  el('li-price').textContent=fmt(price);
-  el('li-disc').textContent='−'+fmt(discPP);
-  el('li-fee').textContent='−'+fmt(feePP);
-  el('li-rev').textContent=fmt(rvP);
-  el('li-mat').textContent=fmt(matPP);
-  el('li-var').textContent=fmt(vpP);
-  el('li-margin').textContent=fmt(contP);
-
-  /* メトリクス */
-  el('m-fixed').textContent=fmt(fixed);
-  el('m-var').textContent=fmt(vpP);
-  el('m-extra').textContent=fmt(extra);
-  el('m-cont').textContent=fmt(contP);
-
-  /* BEP詳細 */
-  el('bd-fixed').textContent=fmt(fixed);
-  el('bd-trans').textContent=fmt(transTotal);
-  el('bd-hotel').textContent=fmt(hotel);
-  el('bd-extra').textContent=fmt(extra);
-  el('bd-netfixed').textContent=fmt(netFixed);
-  el('bd-cont').textContent=fmt(contP);
-  el('bd-bep').textContent=bepN>=9999?'追加収入だけで黒字':bepN+'名';
-  el('bd-o-min').textContent=bepO+'名以上';
-  el('bd-s-min').textContent=bepS+'名以上';
-  el('bd-o-pct').textContent=Math.round(bepO/8*100)+'%（'+bepO+'/8名）';
-  el('bd-s-pct').textContent=Math.round(bepS/10*100)+'%（'+bepS+'/10名）';
-
-  el('sbar-lbl').textContent='充填率：'+totalN+'名 / BEP '+bepN+'名（'+fillPct+'%）';
-  const sf=el('sbar-fill');sf.style.width=fillPct+'%';sf.style.background=isP?'#639922':'#E24B4A';
-  const st=el('sbar-txt');st.textContent=fillPct+'%';st.style.color=isP?'#3B6D11':'#A32D2D';
-
-  el('bd-rev').textContent=fmt(totalRev);
-  el('bd-extra2').textContent=fmt(extra);
-  el('bd-varT').textContent=fmt(totalVar);
-  el('bd-fixedT').textContent=fmt(fixed);
-  const pEl=el('bd-profit');pEl.textContent=fmtS(profit);pEl.style.color=isP?'#3B6D11':'#A32D2D';
-  el('bd-annual').textContent=fmtS(profit*12);
-
-  const nEl=el('bep-notice');
-  if(bepN>=9999){nEl.className='notice ok';nEl.textContent='追加収入（'+fmt(extra)+'）だけで固定費を賄える状態です。';}
-  else if(isP){nEl.className='notice ok';nEl.textContent='受講者'+totalN+'名で損益分岐点（'+bepN+'名）超え。月間'+fmt(profit)+'の黒字。';}
-  else{nEl.className='notice ng';nEl.textContent='損益分岐点まであと'+(bepN-totalN)+'名必要。現在月間'+fmt(-profit)+'の赤字。';}
-
-  /* 生徒費用パネル */
-  el('ps-pair').textContent=fmt(pairUnit*5/2)+'（参考：'+pairUnit+'円/m×2.5m）';
-  el('ps-vvf').textContent=fmt(200*6/2)+'（200円/m×3m）';
-  el('ps-mat').textContent=fmt(matPP);
-  el('ps-disc').textContent='−'+fmt(discPP);
-  el('ps-fee').textContent='−'+fmt(feePP);
-  el('ps-pay').textContent='−'+fmt(discPP+feePP);
-  el('ps-total-v').textContent=fmt(vpP);
-  el('ps-rev').textContent=fmt(rvP);
-  el('ps-var2').textContent=fmt(vpP);
-  el('ps-margin').textContent=fmt(contP);
-
-  /* チャート */
-  const maxN=18;const labels=[];const rL=[];const cL=[];const pL=[];
-  for(let n=2;n<=maxN;n+=2){
-    labels.push(n+'名');
-    const rv=revPP(price,discount,remotePct,cardPct,n)*n+extra;
-    const vv=varPP(n,price,discount,remotePct,cardPct)*n;
-    rL.push(Math.round(rv/10000));cL.push(Math.round((vv+fixed)/10000));pL.push(Math.round((rv-vv-fixed)/10000));
-  }
-  if(bepChart)bepChart.destroy();
-  bepChart=new Chart(el('bepChart'),{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'売上+追加収入（万円）',data:rL,borderColor:'#3B6D11',borderWidth:2,pointBackgroundColor:'#3B6D11',pointRadius:3,tension:.3,fill:false},
-      {label:'総コスト（万円）',data:cL,borderColor:'#A32D2D',borderWidth:2,pointBackgroundColor:'#A32D2D',pointRadius:3,tension:.3,borderDash:[4,3],fill:false},
-      {label:'損益（万円）',data:pL,borderColor:'#185FA5',borderWidth:1.5,pointBackgroundColor:'#185FA5',pointRadius:3,tension:.3,borderDash:[2,2],fill:false},
-    ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'万円'}}},
-      scales:{
-        x:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#5F5E5A',font:{size:11}}},
-        y:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#5F5E5A',font:{size:11},callback:v=>v+'万'}}
-      }
-    }
-  });
-  el('chart-legend').innerHTML=[
-    {c:'#3B6D11',l:'売上+追加収入',dash:false},{c:'#A32D2D',l:'総コスト',dash:true},{c:'#185FA5',l:'損益',dash:true}
-  ].map(i=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:${i.c};display:inline-block;${i.dash?'border-top:2px dashed '+i.c+';background:none':''}"></span><span style="font-size:12px;color:#5F5E5A">${i.l}</span></span>`).join('');
-
-  /* 洗浄タブの比較カードも更新 */
-  el('cl-fixed-before').textContent=fmt(fixed);
-  el('cl-per-before').textContent=fmt(fixed/2)+'（2回で割算）';
-  const halfFixed=fixed/2;
-  el('cl-fixed-after').textContent=fmt(halfFixed);
-  el('cl-per-after').textContent=fmt(fixed/4)+'（4回で割算）';
-  el('cl-saving').textContent='月 '+fmt(halfFixed)+' の削減';
-  el('cl-m-fixed').textContent=fmt(halfFixed);
-  el('cl-install-profit').textContent=fmtS(lastProfit);
-}
-
-function calcCleaning(){
-  const clN=Math.min(18,Math.max(2,parseInt(el('cl-n').value)||2));
-  el('cl-n-r').value=clN;
-  const clPrice=g('cl-price');
-  const clRev=clPrice*clN;
-  const clSub=g('cls-basic')*2980+g('cls-full')*4980;
-  el('disp-cls-basic').textContent=fmt(g('cls-basic')*2980);
-  el('disp-cls-full').textContent=fmt(g('cls-full')*4980);
-
-  const halfFixed=lastFixed/2;
-  const clLaborHalf=g('cl-labor');
-  const clVarPP=2000;
-  const clTotalVar=clVarPP*clN;
-  const clExtra=clSub;
-  const clProfit=clRev+clExtra-clTotalVar-clLaborHalf;
-  const totalProfit=lastProfit+clProfit+halfFixed;
-
-  el('cl-m-fixed').textContent=fmt(halfFixed);
-  el('cl-m-extra').textContent=fmt(clSub);
-  el('cl-m-rev').textContent=fmt(clRev);
-  el('cl-m-profit').textContent=fmtS(clProfit);
-
-  el('cl-install-profit').textContent=fmtS(lastProfit);
-  const fixedBenefit=halfFixed;
-  el('cl-clean-profit').textContent=fmtS(clProfit);
-  el('cl-fixed-benefit').textContent=fmt(fixedBenefit)+'（取付側の固定費負担軽減分）';
-
-  const total=lastProfit+clProfit+fixedBenefit;
-  const totEl=el('cl-total-profit');
-  totEl.textContent=fmtS(total);
-  totEl.style.color=total>=0?'#3B6D11':'#A32D2D';
-  el('cl-total-annual').textContent=fmtS(total*12);
-
-  el('cl-fixed-before').textContent=fmt(lastFixed);
-  el('cl-per-before').textContent=fmt(lastFixed/2)+'（2回で割算）';
-  const half=lastFixed/2;
-  el('cl-fixed-after').textContent=fmt(half);
-  el('cl-per-after').textContent=fmt(lastFixed/4)+'（4回で割算）';
-  el('cl-saving').textContent='月 '+fmt(half)+' の削減';
-}
-
-calc();
 </script>
 </body>
 </html>
